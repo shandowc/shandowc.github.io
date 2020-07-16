@@ -16,7 +16,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="shandowc" /><meta name="description" content="起因 最近对bcc产生了一些兴趣，而我工作语言是golang，因此打算实现一个gofunclancy。有人会问bcc tools里面不是自带了一" />
+<meta name="author" content="shandowc" /><meta name="description" content="本文介绍怎么实现一个可用的gofunclatency脚本。
+" />
 
 
 
@@ -40,22 +41,22 @@
 
 
 <meta property="og:title" content="Gofunclatency" />
-<meta property="og:description" content="起因 最近对bcc产生了一些兴趣，而我工作语言是golang，因此打算实现一个gofunclancy。有人会问bcc tools里面不是自带了一" />
+<meta property="og:description" content="本文介绍怎么实现一个可用的gofunclatency脚本。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://shandowc.github.io/post/gofunclatency/" />
 <meta property="article:published_time" content="2020-07-15T12:12:35+08:00" />
-<meta property="article:modified_time" content="2020-07-15T12:21:51+08:00" />
+<meta property="article:modified_time" content="2020-07-15T12:35:42+08:00" />
 <meta itemprop="name" content="Gofunclatency">
-<meta itemprop="description" content="起因 最近对bcc产生了一些兴趣，而我工作语言是golang，因此打算实现一个gofunclancy。有人会问bcc tools里面不是自带了一">
+<meta itemprop="description" content="本文介绍怎么实现一个可用的gofunclatency脚本。">
 <meta itemprop="datePublished" content="2020-07-15T12:12:35&#43;08:00" />
-<meta itemprop="dateModified" content="2020-07-15T12:21:51&#43;08:00" />
-<meta itemprop="wordCount" content="6802">
+<meta itemprop="dateModified" content="2020-07-15T12:35:42&#43;08:00" />
+<meta itemprop="wordCount" content="6831">
 
 
 
 <meta itemprop="keywords" content="bcc,go,funclatency," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Gofunclatency"/>
-<meta name="twitter:description" content="起因 最近对bcc产生了一些兴趣，而我工作语言是golang，因此打算实现一个gofunclancy。有人会问bcc tools里面不是自带了一"/>
+<meta name="twitter:description" content="本文介绍怎么实现一个可用的gofunclatency脚本。"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -148,7 +149,8 @@
   </div>
 </div>
     <div class="post-content">
-      <h2 id="起因">起因</h2>
+      <p>本文介绍怎么实现一个可用的gofunclatency脚本。</p>
+<h2 id="起因">起因</h2>
 <p>最近对<a href="https://github.com/iovisor/bcc">bcc</a>产生了一些兴趣，而我工作语言是golang，因此打算实现一个gofunclancy。有人会问bcc tools里面不是自带了一个<a href="https://github.com/iovisor/bcc/blob/master/tools/funclatency.py">funclatency</a>吗？实际上这个工具不能直接应用于golang。我们接下来将从原生的funclatency的原理以及实现讲起，然后看下golang是哪里不适合这个工具，并逐步提出解决方案。</p>
 <p>特别心急的小伙伴可以直接看我的实现源码：<a href="https://github.com/shandowc/bcc/blob/master/tools/gofunclatency.py">gofunclatency</a>，中度心急的可以看每个小节的倒数一两段的总结，不急的可以从头到尾看一遍，帮忙找找错漏。</p>
 <h2 id="环境">环境</h2>
@@ -1426,7 +1428,6 @@ func gentraceback(pc0, sp0, lr0 uintptr, gp *g, skip int, pcbuf *uintptr, max in
 <li>需要在脚本中找到指令ret，这对使用了变长指令集的x86_64来说，需要一些功夫。</li>
 </ol>
 <p>第1个问题庆幸的是不存在，但是需要留意有这么个未来的可能的坑。第2个我们可以借助外部工具如gdb解决。</p>
-
     </div>
 
     <div class="post-copyright">
@@ -1438,7 +1439,7 @@ func gentraceback(pc0, sp0, lr0 uintptr, gp *g, skip int, pcbuf *uintptr, max in
     <span class="item-title">上次更新</span>
     <span class="item-content">
         2020-07-15
-        <a href="/commit/5b96d62b800a34ae045f99f33a83a4c92a5bbc18" title="add gofunclatency">(5b96d62)</a>
+        <a href="/commit/a53ed7c2330708ac30c99aa88cf8e6cb2c2f27d5" title="log">(a53ed7c)</a>
     </span>
   </p>
   
@@ -1527,6 +1528,9 @@ func gentraceback(pc0, sp0, lr0 uintptr, gp *g, skip int, pcbuf *uintptr, max in
 
 
 
+
+
+<script src="https://cdn.bootcss.com/mermaid/8.4.8/mermaid.min.js"></script>
 
 
 

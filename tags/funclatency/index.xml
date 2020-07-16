@@ -17,7 +17,7 @@
       <pubDate>Wed, 15 Jul 2020 12:12:35 +0800</pubDate>
       
       <guid>https://shandowc.github.io/post/gofunclatency/</guid>
-      <description>起因 最近对bcc产生了一些兴趣，而我工作语言是golang，因此打算实现一个gofunclancy。有人会问bcc tools里面不是自带了一</description>
+      <description>&lt;p&gt;本文介绍怎么实现一个可用的gofunclatency脚本。&lt;/p&gt;</description>
     </item>
     
   </channel>
