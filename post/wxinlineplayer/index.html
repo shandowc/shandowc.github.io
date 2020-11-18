@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>[源码阅读] WXInlinePlayer - shandowc&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="shandowc" /><meta name="description" content="WXInlinePlayer是一个使用wasm软解视频的播放器，支持h264/h265播放。今天我们阅读一下他们的源码，主要以增加代码注释以及画图等方式加深理解。
+" /><meta name="keywords" content="shandowc" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.75.0-DEV with theme even" />
+
+
+<link rel="canonical" href="https://shandowc.github.io/post/wxinlineplayer/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.8c3cbcb0324c2bb4875ceccba4007cbad4b4ac8377f33af9953c3e7684534a50.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="[源码阅读] WXInlinePlayer" />
+<meta property="og:description" content="WXInlinePlayer是一个使用wasm软解视频的播放器，支持h264/h265播放。今天我们阅读一下他们的源码，主要以增加代码注释以及画图等方式加深理解。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shandowc.github.io/post/wxinlineplayer/" />
+<meta property="article:published_time" content="2020-11-11T15:47:07+08:00" />
+<meta property="article:modified_time" content="2020-11-18T17:38:40+08:00" />
+<meta itemprop="name" content="[源码阅读] WXInlinePlayer">
+<meta itemprop="description" content="WXInlinePlayer是一个使用wasm软解视频的播放器，支持h264/h265播放。今天我们阅读一下他们的源码，主要以增加代码注释以及画图等方式加深理解。">
+<meta itemprop="datePublished" content="2020-11-11T15:47:07&#43;08:00" />
+<meta itemprop="dateModified" content="2020-11-18T17:38:40&#43;08:00" />
+<meta itemprop="wordCount" content="7391">
+
+
+
+<meta itemprop="keywords" content="源码阅读,前端,wasm,播放器," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="[源码阅读] WXInlinePlayer"/>
+<meta name="twitter:description" content="WXInlinePlayer是一个使用wasm软解视频的播放器，支持h264/h265播放。今天我们阅读一下他们的源码，主要以增加代码注释以及画图等方式加深理解。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">shandowc&#39;s blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">shandowc&#39;s blog</a>
+</div>
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">[源码阅读] WXInlinePlayer</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-11-11 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#javascript部分">JavaScript部分</a>
+      <ul>
+        <li><a href="#总体结构">总体结构</a></li>
+        <li><a href="#对外api窗口-indexjs">对外API窗口: index.js</a></li>
+        <li><a href="#内部处理中心processor">内部处理中心:processor</a></li>
+        <li><a href="#loader下载器">loader下载器</a></li>
+        <li><a href="#音频播放">音频播放</a></li>
+        <li><a href="#视频绘图部分">视频绘图部分</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><a href="https://github.com/ErosZy/WXInlinePlayer">WXInlinePlayer</a>是一个使用wasm软解视频的播放器，支持h264/h265播放。今天我们阅读一下他们的源码，主要以增加代码注释以及画图等方式加深理解。</p>
+<h2 id="javascript部分">JavaScript部分</h2>
+<p>解码和解封装都是在wasm中完成的，为了方便，后面都将这个解码解封装器叫做<code>解码器</code>，也就是代码中的<code>H264Codec</code>，虽然叫H264，但是不止能解码H264，还能解封装FLV、解码H265。</p>
+<h3 id="总体结构">总体结构</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">src
+├── index.js           <span class="c1"># 定义WXInlinePlayer，总入口，控制loader、processor、drawer</span>
+├── processor
+│   └── processor.js   <span class="c1"># 播放控制，音视频同步，调用解码器，抛出frame事件</span>
+├── loader
+│   ├── chunk.js       <span class="c1"># 通过http的range实现分段下载</span>
+│   ├── loader.js      <span class="c1"># 下载器入口，选择通过chunk还是stream方式下载，对外暴露&#39;read&#39;方法</span>
+│   └── stream.js      <span class="c1"># 通过fetch获取ReadableStream的reader，实现分段读取</span>
+├── drawer
+│   └── drawer.js      <span class="c1"># 暴露接口drawNextOutputPicture(width, height, data)，用于绘制每一帧的YUV图像</span>
+├── sound
+│   ├── sound.js       <span class="c1"># 音频播放入口，判断是否是微信环境</span>
+│   ├── browser.js     <span class="c1"># 默认浏览器环境的音频播放</span>
+│   └── wechat.js      <span class="c1"># 微信环境的音视频播放需要通过监听WeixinJSBridgeReady方法，做了一下wrap</span>
+└── util
+    ├── ticker.js      <span class="c1"># 实现一个ticker</span>
+    └── util.js        <span class="c1"># 实现检测微信环境、以及简单的workerify功能</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="对外api窗口-indexjs">对外API窗口: index.js</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-javascript" data-lang="javascript">  <span class="nx">constructor</span><span class="p">({</span>
+    <span class="nx">url</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="nx">$container</span><span class="p">,</span>
+    <span class="nx">hasVideo</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">hasAudio</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">volume</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nx">muted</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">autoplay</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">loop</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">isLive</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">chunkSize</span> <span class="o">=</span> <span class="mi">256</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="nx">preloadTime</span> <span class="o">=</span> <span class="mi">1</span><span class="nx">e3</span><span class="p">,</span>
+    <span class="nx">bufferingTime</span> <span class="o">=</span> <span class="mi">3</span><span class="nx">e3</span><span class="p">,</span>
+    <span class="nx">cacheSegmentCount</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+    <span class="cm">/*cacheInMemory = false,*/</span>
+    <span class="nx">customLoader</span> <span class="o">=</span> <span class="kc">null</span>
+  <span class="p">})</span> <span class="p">{</span>
+    <span class="kr">super</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="nx">url</span><span class="p">;</span>                     <span class="c1">// 待播放的url
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">$container</span> <span class="o">=</span> <span class="nx">$container</span><span class="p">;</span>       <span class="c1">// 视频播放的canvas
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">$container</span><span class="p">.</span><span class="nx">width</span><span class="p">;</span>      <span class="c1">// canvas的宽
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="nx">$container</span><span class="p">.</span><span class="nx">height</span><span class="p">;</span>    <span class="c1">// canvas的高
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">vol</span> <span class="o">=</span> <span class="nx">volume</span><span class="p">;</span>                  <span class="c1">// 音量
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">muted</span> <span class="o">=</span> <span class="nx">muted</span><span class="p">;</span>                 <span class="c1">// 是否静音
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">duration</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                  <span class="c1">// 总时长
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">autoplay</span> <span class="o">=</span> <span class="nx">autoplay</span><span class="p">;</span>           <span class="c1">// 是否自动播放
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">loop</span> <span class="o">=</span> <span class="nx">loop</span><span class="p">;</span>                   <span class="c1">// 是否重复播放
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">isLive</span> <span class="o">=</span> <span class="nx">isLive</span><span class="p">;</span>               <span class="c1">// 是否直播流
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span> <span class="o">=</span> <span class="nx">chunkSize</span><span class="p">;</span>         <span class="c1">// 每次下载块大小
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">preloadTime</span> <span class="o">=</span> <span class="nx">preloadTime</span><span class="p">;</span>     <span class="c1">// 预加载时间
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">bufferingTime</span> <span class="o">=</span> <span class="nx">bufferingTime</span><span class="p">;</span> <span class="c1">// 缓冲时间
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">cacheSegmentCount</span> <span class="o">=</span> <span class="nx">cacheSegmentCount</span><span class="p">;</span> <span class="c1">// 缓冲数据块数量，影响播放和下载速度
+</span><span class="c1"></span>    <span class="cm">/*this.cacheInMemory = cacheInMemory;*/</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">customLoader</span> <span class="o">=</span> <span class="nx">customLoader</span><span class="p">;</span>   <span class="c1">// 自定义加载器
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">timeUpdateTimer</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>        <span class="c1">// 定时上报时间更新时间
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">isInitlize</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>            <span class="c1">// 是否加载wasm
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">isEnd</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>                 <span class="c1">// 解码是否结束
+</span><span class="c1"></span>    <span class="cm">/**
+</span><span class="cm">     * created        // 播放器初始状态
+</span><span class="cm">     * playing        // 收到processor的playing事件
+</span><span class="cm">     * buffering      // 收到processor的buffering事件
+</span><span class="cm">     * paused         // 除了直播流不可暂停，调用pause方法后处于这个状态
+</span><span class="cm">     * stopped        // 调用stop后处于这个状态
+</span><span class="cm">     * destroy        // 播放器销毁状态
+</span><span class="cm">     */</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="nx">STATE</span><span class="p">.</span><span class="nx">created</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(((</span><span class="nx">hasVideo</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">hasAudio</span><span class="p">)</span> <span class="o">||</span> <span class="nx">Util</span><span class="p">.</span><span class="nx">isWeChat</span><span class="p">())</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">autoplay</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">_initlize</span><span class="p">();</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">unblock</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Boolean WXInlinePlayer.isSupport(void)</strong></p>
+<ul>
+<li>当前执行环境是否支持WXInlinePlayer</li>
+</ul>
+<p><strong>Promise WXInlinePlayer.init(Object)</strong></p>
+<ul>
+<li>传入参数有两个字段<code>asmUrl</code>, <code>wasmUrl</code>，通过判断是否只是wasm决定加载哪个脚本</li>
+<li>通过操作dom，append一个<code>scripte</code>标签，导入解码器wasm</li>
+<li>在script的<code>onload</code>事件中，将<code>WXInlinePlayer.isInited</code>设置为true</li>
+</ul>
+<p><strong>Promise WXInlinePlayer.ready(void)</strong></p>
+<ul>
+<li>检查是否init完成</li>
+</ul>
+<p><strong>void WXInlinePlayer._initlize(void)</strong></p>
+<ul>
+<li>设置一个250毫秒更新一次的<code>this.timeUpdateTimer</code>，用于上报更新时间事件</li>
+<li>初始化一个<code>this.drawer</code>，用来绘制视频画面</li>
+<li>初始化一个<code>this.loader</code>，用来下载视频数据，支持传入自定义的loader</li>
+<li>将<code>this.loader</code>的<code>loadError</code>和<code>loadSuccess</code>透传到外部事件侦听器</li>
+<li>初始化一个<code>this.processor</code>并监听事件</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js"><span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;mediaInfo&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onMediaInfoHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;frame&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onFrameHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;buffering&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onBufferingHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;preload&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onPreloadHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;playing&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onPlayingHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onEndHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;performance&#39;</span><span class="p">,</span> <span class="nx">data</span> <span class="p">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;performance&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">));</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>void WXInlinePlayer._onMediaInfoHandler(Ojbect)</strong></p>
+<ul>
+<li>从回调中获得<code>this.duration</code>, <code>this.width</code>, <code>this.height</code></li>
+<li>自身再emit这个事件，让外部可以获得这个数据</li>
+</ul>
+<p><strong>void WXInlinePlayer._onFrameHandler(Object)</strong></p>
+<ul>
+<li>获得视频帧宽、高、YUV数据</li>
+<li>调用<code>this.drawer.drawNextOutputPicture(width, height, data)</code>画图</li>
+</ul>
+<p><strong>void WXInlinePlayer._onBufferingHandler(void)</strong></p>
+<ul>
+<li>设置状态为<code>buffering</code></li>
+<li>抛出<code>buffer</code>事件，前端可能显示一个缓冲提示</li>
+<li>调用<code>this.loader.read</code>读取数据喂给<code>this.processor.process</code></li>
+<li>可以看到，这个事件<code>this.processor</code>拿到数据，并进而传递给解码器的一种方式</li>
+</ul>
+<p><strong>void WXInlinePlayer._onPreloadHandler(void)</strong></p>
+<ul>
+<li>和<code>buffering</code>事件一样，调用<code>this.loader.read</code>读取数据喂给<code>this.processor.process</code></li>
+<li>这个事件不会改变播放器状态，是预加载视频的一个方式，只改变了processor的状态，等于是一个内部状态</li>
+<li>通过这种方式让播放器受网络波动影响小一些</li>
+</ul>
+<p><strong>void WXInlinePlayer._onPlayingHandler(void)</strong></p>
+<ul>
+<li>当播放器不处于播放状态时，设置为<code>playing</code>状态</li>
+<li>抛出<code>playing</code>状态</li>
+<li>是一种从<code>buffering</code>转变成<code>playing</code>的方式</li>
+</ul>
+<p><strong>void WXInlinePlayer._onEndHandler(void)</strong></p>
+<ul>
+<li>设置播放器<code>isEnd</code>为true</li>
+<li>抛出<code>end</code>事件</li>
+</ul>
+<p><strong>void WXInlinePlayer.play(void)</strong></p>
+<ul>
+<li>调用<code>this._initlize</code>初始化播放</li>
+<li>调用<code>this.processor.unblock</code></li>
+<li>抛出<code>play</code>事件</li>
+</ul>
+<p><strong>void WXInlinePlayer.pause()</strong></p>
+<ul>
+<li>直播流不支持暂停</li>
+<li>调用<code>processor</code>的<code>pause</code>方法</li>
+<li>抛出<code>paused</code>事件</li>
+</ul>
+<p><strong>void WXInlinePlayer.resume(void)</strong></p>
+<ul>
+<li>直播流没有pause所以不用resume</li>
+<li>其实是透传到<code>this.processor.resume</code></li>
+</ul>
+<p><strong>Number|void WXInlinePlayerInstance.volume(Number|void)</strong></p>
+<ul>
+<li>获取/设置当前音量</li>
+<li>其实是透传到<code>this.processor.volume</code></li>
+</ul>
+<p><strong>Boolean|void WXInlinePlayerInstance.mute(Boolean|void)</strong></p>
+<ul>
+<li>获取/设置静音状态</li>
+<li>其实是透传到<code>this.processor.mute</code></li>
+</ul>
+<p><strong>void WXInlinePlayerInstance.destroy(void)</strong></p>
+<ul>
+<li>销毁播放器，释放所有内存等待回收</li>
+<li>调用<code>this.removeAllListeners</code>，移除事件侦听</li>
+<li>调用<code>this.stop</code>停止播放器</li>
+<li>调用<code>this.drawer.destroy</code>销毁绘制器</li>
+</ul>
+<p><strong>Number WXInlinePlayerInstance.getCurrentTime(void)</strong></p>
+<ul>
+<li>获取当前播放时间</li>
+<li>其实是透传<code>this.processor.getCurrentTime()</code></li>
+</ul>
+<p><strong>Number WXInlinePlayerInstance.getAvaiableDuration(void)</strong></p>
+<ul>
+<li>获得可播放时长</li>
+<li>其实是透传<code>this.processor.getAvaiableDuration()</code></li>
+</ul>
+<p><strong>Number WXInlinePlayerInstance.getDuration()</strong></p>
+<ul>
+<li>获得流媒体总时长</li>
+<li>直接返回<code>this.duration</code></li>
+<li><code>this.duration</code>的值来自<code>this.processor</code>上报的<code>mediaInfo</code></li>
+</ul>
+<p>总结一下，WXInlinePlayer这个类里面封装了对外API，定义了播放器状态、处理子组件的事件然后对外暴露事件，自身逻辑不多。</p>
+<h3 id="内部处理中心processor">内部处理中心:processor</h3>
+<p>先看构造函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-javascript" data-lang="javascript">  <span class="nx">constructor</span><span class="p">({</span>
+    <span class="nx">volume</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nx">muted</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">preloadTime</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="nx">bufferingTime</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">,</span>
+    <span class="nx">cacheSegmentCount</span> <span class="o">=</span> <span class="mi">128</span>
+  <span class="p">})</span> <span class="p">{</span>
+    <span class="kr">super</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">averageUnitDuration</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>     <span class="c1">// 平均解码得到的可播放时长
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">averageDecodeCost</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>       <span class="c1">// 平均解码消耗时间
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">soundHeadSliced</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>     <span class="c1">// 初始音频数据是否已经到达（目的不明确TODO）
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">framerate</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">/</span> <span class="mi">24</span><span class="p">;</span>       <span class="c1">// 默认每秒约41.6帧，后面会根据解码回调，调整帧率
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">isEnded</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>             <span class="c1">// 解码返回complete
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="s1">&#39;created&#39;</span><span class="p">;</span>           <span class="c1">// 播放状态
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">baseTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                <span class="c1">// 开始播放的起始时间戳
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">blocked</span> <span class="o">=</span> <span class="o">!</span><span class="nx">Util</span><span class="p">.</span><span class="nx">isWeChat</span><span class="p">();</span>  
+    <span class="k">this</span><span class="p">.</span><span class="nx">hasVideo</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>             <span class="c1">// 是否有视频流
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">hasAudio</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>             <span class="c1">// 是否有音频流
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">frames</span> <span class="o">=</span> <span class="p">[];</span>                 <span class="c1">// 视频帧队列
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">audios</span> <span class="o">=</span> <span class="p">[];</span>                 <span class="c1">// 音频帧队列
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">currentTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>             <span class="c1">// 时间戳，保证初始时间肯定是0，然后单调递增的毫秒时间戳
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">bufferingIndex</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>         <span class="c1">// 开始缓存的frame下标，播放的时候需要frames的最新的时间戳减去这个下标frame时间戳大于最小缓冲时间
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">minBufferingTime</span> <span class="o">=</span> <span class="nx">preloadTime</span><span class="p">;</span>        <span class="c1">// 最小缓冲时间，开始时值为proloadTtime，后面为bufferingTime
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">bufferingTime</span> <span class="o">=</span> <span class="nx">bufferingTime</span><span class="p">;</span>         <span class="c1">// 缓冲时间
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">cacheSegmentCount</span> <span class="o">=</span> <span class="nx">cacheSegmentCount</span><span class="p">;</span> <span class="c1">// 调整ticker时间的依据，当frames的值小于或者大于这个值的一定比率后，相应调整这个值 
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">ticker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Ticker</span><span class="p">();</span>                 <span class="c1">// 定时器
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">sound</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sound</span><span class="p">({</span> <span class="nx">volume</span><span class="p">,</span> <span class="nx">muted</span> <span class="p">});</span>  <span class="c1">// 封装的sound部分代码
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">codec</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">H264Codec</span><span class="p">();</span>               <span class="c1">// 用在index中引入的wasm，构造解码器
+</span><span class="c1"></span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">tickHandler</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onTickHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">ticker</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">tickHandler</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">codec</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onCodecMsgHandler</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后从函数整体概览一下processor。</p>
+<p><strong>Number Processor.getAvaiableDuration(void)</strong></p>
+<ul>
+<li>有音频则从<code>this.sound</code>获取</li>
+<li>否则返回<code>this.frames</code>最后一帧的时间戳</li>
+</ul>
+<p><strong>Number Processor.getCurrentTime(void)</strong></p>
+<ul>
+<li>毫秒为单位的现在时间</li>
+<li>有音频从<code>this.sound.getCurrentTime()</code>获取</li>
+<li>否则返回<code>this.currentTime</code></li>
+</ul>
+<p><strong>void Processor.process(Uint8Array buffer)</strong></p>
+<ul>
+<li>调用<code>this.codec</code>解码</li>
+</ul>
+<p><strong>void Processor.unblock(void)</strong></p>
+<ul>
+<li>调用<code>this.sound.unblock(0);</code></li>
+</ul>
+<p><strong>Number|void Processor.volume(Number|void)</strong></p>
+<ul>
+<li>透传到<code>this.sound.volume</code>方法</li>
+</ul>
+<p><strong>Boolean|void Processor.mute(Boolean|void)</strong></p>
+<ul>
+<li>透传到<code>this.sound.mute</code>方法</li>
+</ul>
+<p><strong>void Processor.pause(void)</strong></p>
+<ul>
+<li>调用<code>this.sound.pause</code>暂停音频</li>
+<li>调用<code>this.ticker.remove</code>停止定时回调<code>this._onTickHandler</code>函数</li>
+<li>设置状态为paused</li>
+</ul>
+<p><strong>void Processor.resume(void)</strong></p>
+<ul>
+<li>调用<code>this.sound.resume</code>恢复音频</li>
+<li>调用<code>this.ticker.add</code>恢复定时调用<code>this.tickHandler</code></li>
+<li>设置状态为playing</li>
+</ul>
+<p><strong>void Processor.destroy(void)</strong></p>
+<ul>
+<li>调用<code>this.removeAllListeners</code>移除所有事件监听器</li>
+<li>调用<code>this.sound.destroy</code>移除音频组件</li>
+<li>调用<code>this.codec.destroy</code>销毁codec</li>
+<li>初始化成员变量，状态设置为desctroy</li>
+</ul>
+<p><strong>void Processor._onTickHandler(void)</strong></p>
+<ul>
+<li>通过<code>this.emit('buffering')</code>表明数据不足以维持播放，请求外部喂数据</li>
+<li>通过<code>this.emit('preload')</code>请求加载数据，避免网络波动导致播放卡顿</li>
+<li>通过<code>this.ticker.setFps</code>设置本函数回调速度</li>
+<li>通过<code>this.emit('frame', this.frames[i]);</code>让外部渲染在currentTime 25毫秒内的帧画面</li>
+</ul>
+<p><strong>void Processor._onCodecMsgHandler(MessageEvent)</strong></p>
+<ul>
+<li>解码器回调接收函数</li>
+<li>收到<code>ready</code>消息，<code>this.emit('buffering')</code></li>
+<li>收到<code>header</code>消息，判断是否有音视频，然后自身emit透传这个事件</li>
+<li>收到<code>mediaInfo</code>消息
+<ul>
+<li>设置<code>this.framerate</code>,</li>
+<li>设置<code>this.ticker</code>定时间隔</li>
+<li>自身emit透传这个事件</li>
+</ul>
+</li>
+<li>收到<code>video</code>消息
+<ul>
+<li>拿到视频帧YUV数据，宽，高，pts时间戳</li>
+<li>如果<code>this.baseTime</code>未设置，设置为拿到的视频帧的时间戳</li>
+<li>将时间戳设置为<code>timestamp=timestamp-this.baseTime</code>，放入<code>this.frames</code></li>
+</ul>
+</li>
+<li>收到<code>audio</code>消息
+<ul>
+<li>拿到音频时间戳和音频aac数据</li>
+<li>如果<code>this.baseTime</code>未设置，设置为拿到的时间戳</li>
+<li>将数据放入<code>this.audios</code></li>
+</ul>
+</li>
+<li>收到<code>decode</code>消息
+<ul>
+<li>拿到每次解码耗时、以及解码可播放时长</li>
+<li><code>this.emit('playing')</code>，并设置状态为<code>playing</code></li>
+<li>emit <code>performance</code>事件，上报平均解码耗时和平均解码可播放时长</li>
+</ul>
+</li>
+<li>收到<code>complete</code>消息
+<ul>
+<li>设置状态为<code>end</code></li>
+<li>emit <code>end</code>事件</li>
+</ul>
+</li>
+</ul>
+<h3 id="loader下载器">loader下载器</h3>
+<p>loader下载器主要暴露一个方法<code>Promise read(void)</code>，外部用法是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js"><span class="k">this</span><span class="p">.</span><span class="nx">loader</span><span class="p">.</span><span class="nx">read</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">process</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>也就是说，我们自定义的下载器实现这个方法，也能代替默认的下载器。自带的下载器有两种，一种是chunk.js，一种是stream.js。</p>
+<h4 id="chunkjs">chunk.js</h4>
+<p>我们先来看看chunk.js的代码。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">read</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里只是简单调用<code>this._request</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">_request</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">isSuccess</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="kd">let</span> <span class="nx">promise</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_fetch</span><span class="p">();</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">MAX_REQ_RETRY</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">promise</span> <span class="o">=</span> <span class="nx">promise</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">buffer</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">isSuccess</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">isSuccess</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">downloadSize</span> <span class="o">+=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">done</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>         <span class="c1">// 获取到的数据不足chunk大小，表明文件下载完了
+</span><span class="c1"></span>            <span class="p">}</span>
+          <span class="p">}</span>
+
+          <span class="k">if</span> <span class="p">(</span><span class="nx">supportSharedBuffer</span><span class="p">)</span> <span class="p">{</span>    <span class="c1">// 支持sharedBuffer的浏览器就用，避免后续多次拷贝
+</span><span class="c1"></span>            <span class="kd">let</span> <span class="nx">sharedBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SharedArrayBuffer</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">byteLength</span><span class="p">);</span>
+            <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">sharedBuffer</span><span class="p">);</span>
+            <span class="nx">result</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
+            <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">result</span><span class="p">;</span>
+          <span class="p">}</span>
+
+          <span class="k">return</span> <span class="nx">buffer</span><span class="p">;</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">&gt;=</span> <span class="nx">MAX_REQ_RETRY</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">emitted</span><span class="p">)</span> <span class="p">{</span>              <span class="c1">// 只会抛出事件一次
+</span><span class="c1"></span>              <span class="k">this</span><span class="p">.</span><span class="nx">emitted</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;loadError&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>      <span class="c1">// 失败次数超过限制，抛出事件
+</span><span class="c1"></span>            <span class="p">}</span>
+            <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_fetch</span><span class="p">();</span>
+          <span class="p">}</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">promise</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>this._request</code>会调用<code>this._fetch</code>去获取数据，并在失败的时候重试<code>MAX_REQ_RETRY</code>次。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">_fetch</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">endIndex</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">startIndex</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">responseType</span> <span class="o">=</span> <span class="s1">&#39;arraybuffer&#39;</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span><span class="p">(</span>
+        <span class="s1">&#39;Range&#39;</span><span class="p">,</span>
+        <span class="sb">`bytes=</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">startIndex</span><span class="si">}</span><span class="sb">-</span><span class="si">${</span><span class="nx">endIndex</span><span class="si">}</span><span class="sb">`</span>    <span class="c1">//通过range控制每次只下载chunk大小的数据
+</span><span class="c1"></span>      <span class="p">);</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="nx">e</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="nx">reject</span><span class="p">({</span>
+          <span class="nx">status</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+          <span class="nx">statusText</span><span class="o">:</span> <span class="s1">&#39;unknown error&#39;</span><span class="p">,</span>
+          <span class="nx">detail</span><span class="o">:</span> <span class="nx">e</span>
+        <span class="p">});</span>
+      <span class="p">};</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span> <span class="o">&gt;=</span> <span class="mi">200</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span> <span class="o">&lt;=</span> <span class="mi">299</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">emitted</span><span class="p">)</span> <span class="p">{</span>            <span class="c1">// 只会抛出事件一次
+</span><span class="c1"></span>              <span class="k">this</span><span class="p">.</span><span class="nx">emitted</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;loadSuccess&#39;</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">startIndex</span> <span class="o">=</span> <span class="nx">endIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="nx">resolve</span><span class="p">(</span><span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">response</span><span class="p">));</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">reject</span><span class="p">({</span>
+              <span class="nx">status</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span><span class="p">,</span>
+              <span class="nx">statusText</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">statusText</span><span class="p">,</span>
+              <span class="nx">detail</span><span class="o">:</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span>
+                <span class="kc">null</span><span class="p">,</span>
+                <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">response</span><span class="p">)</span>
+              <span class="p">)</span>
+            <span class="p">});</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，chunk.js的方法是通过range方法每次下载chunk大小的数据，失败的时候会重试一定次数。</p>
+<h4 id="streamjs">stream.js</h4>
+<p>看stream.js之前，我们发现如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">Loader</span><span class="p">({</span> <span class="nx">type</span> <span class="o">=</span> <span class="s1">&#39;chunk&#39;</span><span class="p">,</span> <span class="nx">opt</span> <span class="p">})</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">type</span> <span class="o">==</span> <span class="s1">&#39;chunk&#39;</span>
+    <span class="o">?</span> <span class="k">new</span> <span class="nx">ChunkLoader</span><span class="p">(</span><span class="nx">opt</span><span class="p">)</span>
+    <span class="o">:</span> <span class="k">new</span> <span class="p">(</span><span class="nx">Util</span><span class="p">.</span><span class="nx">workerify</span><span class="p">(</span><span class="nx">StreamLoader</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;cancel&#39;</span><span class="p">,</span> <span class="s1">&#39;hasData&#39;</span><span class="p">]))(</span><span class="nx">opt</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>从<code>Util.workerify</code>我们猜测，这是启动了一个web worker，下面我们求证一下这个想法，注意这里我们调整了一下代码顺序，方便理解：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">getFuncBody</span><span class="p">(</span><span class="nx">funcStr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">funcStr</span>
+      <span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+      <span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/^function\s*\w*\s*\([\w\s,]*\)\s*{([\w\W]*?)}$/</span><span class="p">)[</span><span class="mi">1</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="nx">workerify</span><span class="p">(</span><span class="nx">func</span><span class="p">,</span> <span class="nx">methods</span> <span class="o">=</span> <span class="p">[])</span> <span class="p">{</span>
+    <span class="c1">// StreamLoader是将全部代码都放到一个function里面，getFuncBody则从这个函数的
+</span><span class="c1"></span>    <span class="c1">// 字符串中，提取函数内部的代码，从而拿到一个完整的js文件
+</span><span class="c1"></span>    <span class="kr">const</span> <span class="nx">funcStr</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getFuncBody</span><span class="p">(</span><span class="nx">func</span><span class="p">.</span><span class="nx">toString</span><span class="p">());</span>
+    <span class="kd">function</span> <span class="nx">__Worker__</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">EventEmitter</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span> <span class="o">=</span> <span class="p">[];</span>
+
+      <span class="kr">const</span> <span class="nx">blob</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Blob</span><span class="p">([</span><span class="nx">funcStr</span><span class="p">],</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;text/javascript&#39;</span> <span class="p">});</span> <span class="c1">// 用函数体代码创建一个Blob
+</span><span class="c1"></span>      <span class="k">this</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="nx">URL</span><span class="p">.</span><span class="nx">createObjectURL</span><span class="p">(</span><span class="nx">blob</span><span class="p">);</span>   <span class="c1">// 给这个blob创建对象URL
+</span><span class="c1"></span>      <span class="k">this</span><span class="p">.</span><span class="nx">worker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Worker</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>     <span class="c1">// 创建web worker
+</span><span class="c1"></span>      <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="nx">message</span> <span class="p">=&gt;</span> <span class="p">{</span>    <span class="c1">// worker完成工作后，返回结果
+</span><span class="c1"></span>        <span class="kr">const</span> <span class="p">{</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">destroy</span><span class="p">,</span> <span class="nx">type</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">destroy</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span> <span class="o">=</span> <span class="p">[];</span>
+          <span class="nx">URL</span><span class="p">.</span><span class="nx">revokeObjectURL</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">terminate</span><span class="p">();</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">worker</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">type</span> <span class="o">==</span> <span class="s1">&#39;event&#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>    <span class="c1">// 对于Streamloader，是转发loadError和loadSuccess事件
+</span><span class="c1"></span>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">id</span> <span class="o">==</span> <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>         <span class="c1">// 在这里resolve之前调用method返回的promise
+</span><span class="c1"></span>              <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+              <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;constructor&#39;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="o">++</span><span class="p">,</span> <span class="nx">data</span> <span class="p">});</span>
+    <span class="p">}</span>
+
+    <span class="nx">inherits</span><span class="p">(</span><span class="nx">__Worker__</span><span class="p">,</span> <span class="nx">EventEmitter</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">methods</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">type</span> <span class="o">=</span> <span class="nx">methods</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+      <span class="nx">__Worker__</span><span class="p">.</span><span class="nx">prototype</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>      <span class="c1">// 让本对象实现methods方法
+</span><span class="c1"></span>        <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>        <span class="c1">// 返回的是Promise，因为是在worker中完成的，无法立刻返回结果
+</span><span class="c1"></span>          <span class="kr">const</span> <span class="nx">id</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="o">++</span><span class="p">;</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span> <span class="p">});</span>
+          <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">data</span> <span class="p">});</span>  <span class="c1">// 通过postmessage让worker去执行具体动作
+</span><span class="c1"></span>          <span class="p">}</span>
+        <span class="p">});</span>
+      <span class="p">};</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">__Worker__</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下面我们看一下stream.js的原理。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">StreamLoader</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">read</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// 目前的缓冲数据不满足chunk大小
+</span><span class="c1"></span>      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getChunk</span><span class="p">();</span>            <span class="c1">// 如果是文件到EOF了，那么也只能直接返回了
+</span><span class="c1"></span>      <span class="p">}</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getChunk</span><span class="p">();</span>         <span class="c1">// 如果文件没结束，那么请求后再返回chunk数据
+</span><span class="c1"></span>      <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getChunk</span><span class="p">();</span>    <span class="c1">// 目前的缓冲数据大于chunk大小
+</span><span class="c1"></span>  <span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>看起来本地维护了一些数据，不用每次从网络请求。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">
+  <span class="kd">function</span> <span class="nx">slice</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">startIndex</span><span class="p">,</span> <span class="nx">endIndex</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">endIndex</span> <span class="o">||</span> <span class="nx">endIndex</span> <span class="o">-</span> <span class="nx">startIndex</span> <span class="o">&gt;</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">endIndex</span> <span class="o">=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nx">supportSharedBuffer</span><span class="p">){</span>          <span class="c1">// 支持sharedArray的时候用它减少后续拷贝
+</span><span class="c1"></span>      <span class="kd">let</span> <span class="nx">sharedBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SharedArrayBuffer</span><span class="p">(</span><span class="nx">endIndex</span> <span class="o">-</span> <span class="nx">startIndex</span><span class="p">);</span>
+      <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">sharedBuffer</span><span class="p">);</span>
+      <span class="nx">result</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">subarray</span><span class="p">(</span><span class="nx">startIndex</span><span class="p">,</span> <span class="nx">endIndex</span><span class="p">));</span>
+      <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+      <span class="k">return</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">subarray</span><span class="p">(</span><span class="nx">startIndex</span><span class="p">,</span> <span class="nx">endIndex</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="nx">StreamLoader</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">_getChunk</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="nx">resolve</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">slice</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">slice</span><span class="p">(</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> 
+        <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span> <span class="o">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span>
+      <span class="p">);</span>
+      <span class="nx">resolve</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>从<code>this.data</code>中拿出chunk大小的数据，如果数据不足，就全部拿出来。取数据出来的时候和chunk.js一样，如果支持sharedArrayBuffer，就传sharedArrayBuffer。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="kd">function</span> <span class="nx">concat</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">length</span> <span class="o">+</span> <span class="nx">j</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+    <span class="nx">buffer</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">i</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="nx">buffer</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">j</span><span class="p">),</span> <span class="nx">i</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">buffer</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">StreamLoader</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">_request</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reader</span><span class="p">)</span> <span class="p">{</span>                   <span class="c1">// 看之前请求过没，请求过就能拿到reader
+</span><span class="c1"></span>      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">reader</span><span class="p">.</span><span class="nx">read</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="kd">let</span> <span class="p">{</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">done</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">result</span><span class="p">;</span>
+        <span class="nx">value</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">value</span> <span class="o">?</span> <span class="nx">value</span> <span class="o">:</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">concat</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>   <span class="c1">// 将数据拼到this.data里面
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">done</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>                 <span class="c1">// 是否遇到EOF
+</span><span class="c1"></span>        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">();</span>           <span class="c1">// 读到数据，但是数据不足，递归调用自己
+</span><span class="c1"></span>        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">fetch</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="p">{</span>          <span class="c1">// 只在第一次调用fetch，拿到reader
+</span><span class="c1"></span>        <span class="nx">method</span><span class="o">:</span> <span class="s1">&#39;GET&#39;</span>
+      <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">resp</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="kr">const</span> <span class="p">{</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">statusText</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">resp</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">status</span> <span class="o">&lt;</span> <span class="mi">200</span> <span class="o">||</span> <span class="nx">status</span> <span class="o">&gt;</span> <span class="mi">299</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">text</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">text</span> <span class="p">=&gt;</span> <span class="p">{</span>
+              <span class="nx">self</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+                <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span>
+                <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+                  <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;loadError&#39;</span><span class="p">,</span>            <span class="c1">// 状态码不是2xx就报错，是就返回加载成功
+</span><span class="c1"></span>                  <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">statusText</span><span class="p">,</span> <span class="nx">detail</span><span class="o">:</span> <span class="nx">text</span> <span class="p">}</span>
+                <span class="p">}</span>
+              <span class="p">});</span>
+            <span class="p">});</span>
+          <span class="p">}</span>
+
+          <span class="nx">self</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;loadSuccess&#39;</span> <span class="p">}</span> <span class="p">});</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">reader</span> <span class="o">=</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">getReader</span><span class="p">();</span>
+          <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">();</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="nx">self</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span>
+            <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+              <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;loadError&#39;</span><span class="p">,</span>           <span class="c1">// fetch失败也报错
+</span><span class="c1"></span>              <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">statusText</span><span class="o">:</span> <span class="s1">&#39;unknown error&#39;</span><span class="p">,</span> <span class="nx">detail</span><span class="o">:</span> <span class="nx">e</span> <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="音频播放">音频播放</h3>
+<p>入口很简单，判断是不是微信环境。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js"><span class="kr">import</span> <span class="nx">Util</span> <span class="nx">from</span> <span class="s1">&#39;../util/util&#39;</span><span class="p">;</span>
+<span class="kr">import</span> <span class="nx">BrowserSound</span> <span class="nx">from</span> <span class="s1">&#39;./browser&#39;</span><span class="p">;</span>
+<span class="kr">import</span> <span class="nx">WeChatSound</span> <span class="nx">from</span> <span class="s1">&#39;./wechat&#39;</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">Sound</span><span class="p">(</span><span class="nx">opt</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Util</span><span class="p">.</span><span class="nx">isWeChat</span><span class="p">()</span> <span class="o">?</span> <span class="k">new</span> <span class="nx">WeChatSound</span><span class="p">(</span><span class="nx">opt</span><span class="p">)</span> <span class="o">:</span> <span class="k">new</span> <span class="nx">BrowserSound</span><span class="p">(</span><span class="nx">opt</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kr">export</span> <span class="k">default</span> <span class="nx">Sound</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>由于微信部分和浏览器部分区别不大，属于细节性的区别，所以下面从浏览器角度看一下代码。先来看数据流入的地方：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">decode</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">data</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">from</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">concat</span><span class="p">([</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="nx">data</span><span class="p">]);</span> <span class="c1">// 将数据放到this.data中保存起来
+</span><span class="c1"></span>      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="nx">resolve</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">context</span><span class="p">.</span><span class="nx">decodeAudioData</span><span class="p">(</span>       <span class="c1">// 调用AudioContext.decodeAudioData()
+</span><span class="c1"></span>            <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">buffer</span><span class="p">,</span>
+            <span class="nx">buffer</span> <span class="p">=&gt;</span> <span class="p">{</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">_onDecodeSuccess</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
+              <span class="nx">resolve</span><span class="p">();</span>
+            <span class="p">},</span>
+            <span class="nx">error</span> <span class="p">=&gt;</span> <span class="p">{</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">_onDecodeError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+              <span class="nx">resolve</span><span class="p">();</span>
+            <span class="p">}</span>
+          <span class="p">);</span>
+        <span class="p">});</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这个函数是在<code>processor</code>收到解码器<code>decode</code>消息后调用的，这时候是解码器解封装了一段数据。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">_onDecodeSuccess</span><span class="p">(</span><span class="nx">audioBuffer</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">audioSrc</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">context</span><span class="p">.</span><span class="nx">createBufferSource</span><span class="p">();</span>
+    <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">onended</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onAudioBufferEnded</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>   <span class="c1">// 播放完及时清理this.audioSrcNodes
+</span><span class="c1"></span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">playStartedAt</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="p">{</span> <span class="nx">duration</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">audioBuffer</span><span class="p">;</span>       <span class="c1">// 第一段音频数据的时长
+</span><span class="c1"></span>      <span class="kr">const</span> <span class="p">{</span> <span class="nx">currentTime</span><span class="p">,</span> <span class="nx">baseLatency</span><span class="p">,</span> <span class="nx">sampleRate</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">context</span><span class="p">;</span>
+      <span class="kr">const</span> <span class="nx">startDelay</span> <span class="o">=</span> <span class="nx">duration</span> <span class="o">+</span> <span class="p">(</span><span class="nx">baseLatency</span> <span class="o">||</span> <span class="mi">128</span> <span class="o">/</span> <span class="nx">sampleRate</span><span class="p">);</span> <span class="c1">// 第一段数据延迟一定时间再播放
+</span><span class="c1"></span>      <span class="k">this</span><span class="p">.</span><span class="nx">playStartedAt</span> <span class="o">=</span> <span class="nx">currentTime</span> <span class="o">+</span> <span class="nx">startDelay</span><span class="p">;</span>                   <span class="c1">// 记录开始播放的时间
+</span><span class="c1"></span>    <span class="p">}</span>
+
+    <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="nx">audioBuffer</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">==</span> <span class="s1">&#39;running&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">try</span> <span class="p">{</span>
+        <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">gainNode</span><span class="p">);</span>
+        <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">start</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">totalTimeScheduled</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">playStartedAt</span><span class="p">);</span> <span class="c1">// 通过时间轴，指定每段音频的播放开始时间，避免卡顿
+</span><span class="c1"></span>      <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">audioSrcNodes</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span>
+      <span class="nx">source</span><span class="o">:</span> <span class="nx">audioSrc</span><span class="p">,</span>
+      <span class="nx">duration</span><span class="o">:</span> <span class="nx">audioBuffer</span><span class="p">.</span><span class="nx">duration</span><span class="p">,</span>         <span class="c1">// 这段音频的时长
+</span><span class="c1"></span>      <span class="nx">timestamp</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">totalTimeScheduled</span>      <span class="c1">// 这段音频在所有可播放的音频段中的时间位置
+</span><span class="c1"></span>    <span class="p">});</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">totalTimeScheduled</span> <span class="o">+=</span> <span class="nx">audioBuffer</span><span class="p">.</span><span class="nx">duration</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">duration</span> <span class="o">+=</span> <span class="nx">audioBuffer</span><span class="p">.</span><span class="nx">duration</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">Buffer</span><span class="p">.</span><span class="nx">alloc</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;decode:success&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nx">_onDecodeError</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;decode:error&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>       <span class="c1">// 音频解码失败返回事件
+</span><span class="c1"></span>  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>除了上面这些部分，还有一个<code>unblock</code>函数值得注意，这个函数在代码中几乎相当于音频播放的start，没有其它用处。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">unblock</span><span class="p">(</span><span class="nx">offset</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">!=</span> <span class="s1">&#39;blocked&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="s1">&#39;running&#39;</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">resume</span><span class="p">();</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">setBlockedCurrTime</span><span class="p">(</span><span class="nx">offset</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="p">.</span><span class="nx">playStartedAt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>     <span class="c1">// 初始化时间变量状态
+</span><span class="c1"></span>    <span class="k">this</span><span class="p">.</span><span class="nx">totalTimeScheduled</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">audioSrcNodes</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="p">{</span> <span class="nx">source</span><span class="p">,</span> <span class="nx">timestamp</span><span class="p">,</span> <span class="nx">duration</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">audioSrcNodes</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+      <span class="nx">source</span><span class="p">.</span><span class="nx">onended</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+      <span class="nx">source</span><span class="p">.</span><span class="nx">disconnect</span><span class="p">();</span>
+
+      <span class="kr">const</span> <span class="nx">audioSrc</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">context</span><span class="p">.</span><span class="nx">createBufferSource</span><span class="p">();</span>
+      <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">onended</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_onAudioBufferEnded</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>   <span class="c1">// 清理播放完的this.audioSrcNodes
+</span><span class="c1"></span>      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">playStartedAt</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kr">const</span> <span class="p">{</span> <span class="nx">currentTime</span><span class="p">,</span> <span class="nx">baseLatency</span><span class="p">,</span> <span class="nx">sampleRate</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">context</span><span class="p">;</span>
+        <span class="kr">const</span> <span class="nx">startDelay</span> <span class="o">=</span> <span class="nx">duration</span> <span class="o">+</span> <span class="p">(</span><span class="nx">baseLatency</span> <span class="o">||</span> <span class="mi">128</span> <span class="o">/</span> <span class="nx">sampleRate</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">playStartedAt</span> <span class="o">=</span> <span class="nx">currentTime</span> <span class="o">+</span> <span class="nx">startDelay</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="nx">source</span><span class="p">.</span><span class="nx">buffer</span><span class="p">;</span>
+      <span class="k">try</span> <span class="p">{</span>
+        <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">gainNode</span><span class="p">);</span>
+        <span class="nx">audioSrc</span><span class="p">.</span><span class="nx">start</span><span class="p">(</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">totalTimeScheduled</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">playStartedAt</span><span class="p">,</span>   <span class="c1">// 给音频安排schedule，让它在适当的时间播放
+</span><span class="c1"></span>          <span class="o">!</span><span class="nx">i</span> <span class="o">?</span> <span class="nx">offset</span> <span class="o">/</span> <span class="mi">1000</span> <span class="o">-</span> <span class="nx">timestamp</span> <span class="o">:</span> <span class="mi">0</span>
+        <span class="p">);</span>
+      <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{}</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">audioSrcNodes</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">source</span> <span class="o">=</span> <span class="nx">audioSrc</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">audioSrcNodes</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">timestamp</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">totalTimeScheduled</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">totalTimeScheduled</span> <span class="o">+=</span> <span class="nx">duration</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="视频绘图部分">视频绘图部分</h3>
+<p><code>index.js</code>会调用如下的函数，进行绘图。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-js" data-lang="js">  <span class="nx">drawNextOutputPicture</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="p">{</span> <span class="nx">yTextureRef</span><span class="p">,</span> <span class="nx">uTextureRef</span><span class="p">,</span> <span class="nx">vTextureRef</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+    <span class="kr">const</span> <span class="nx">gl</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">contextGL</span><span class="p">;</span>
+    <span class="nx">gl</span><span class="p">.</span><span class="nx">pixelStorei</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">UNPACK_ALIGNMENT</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>     <span class="c1">// 每一行像素数据下标无需对齐
+</span><span class="c1"></span>
+    <span class="c1">// 告诉WebGL裁剪空间的-1 -&gt; +1 分别对应到x轴的0 -&gt; width和y轴的0 -&gt; height
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">viewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">width</span><span class="p">,</span> <span class="nx">height</span><span class="p">);</span>
+
+    <span class="kr">const</span> <span class="nx">i420Data</span> <span class="o">=</span> <span class="nx">data</span><span class="p">;</span>                      <span class="c1">// 传进来的是YUV420P的数据
+</span><span class="c1"></span>    <span class="kr">const</span> <span class="nx">yDataLength</span> <span class="o">=</span> <span class="nx">width</span> <span class="o">*</span> <span class="nx">height</span><span class="p">;</span>         <span class="c1">// Y数据的长度是宽x高
+</span><span class="c1"></span>    <span class="kr">const</span> <span class="nx">yData</span> <span class="o">=</span> <span class="nx">i420Data</span><span class="p">.</span><span class="nx">subarray</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">yDataLength</span><span class="p">);</span>  <span class="c1">// 取本帧中Y的数据
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">activeTexture</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE0</span><span class="p">);</span>              <span class="c1">// 激活Y纹理单元
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">bindTexture</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE_2D</span><span class="p">,</span> <span class="nx">yTextureRef</span><span class="p">);</span> <span class="c1">// 绑定一个纹理，GL 最多可同时注册32张纹理
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">texImage2D</span><span class="p">(</span>                              <span class="c1">// 加载图片数据到Y纹理中
+</span><span class="c1"></span>      <span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE_2D</span><span class="p">,</span>
+      <span class="mi">0</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">LUMINANCE</span><span class="p">,</span>
+      <span class="nx">width</span><span class="p">,</span>
+      <span class="nx">height</span><span class="p">,</span>
+      <span class="mi">0</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">LUMINANCE</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">UNSIGNED_BYTE</span><span class="p">,</span>
+      <span class="nx">yData</span>
+    <span class="p">);</span>
+
+    <span class="kr">const</span> <span class="nx">cbDataLength</span> <span class="o">=</span> <span class="nx">width</span> <span class="o">*</span> <span class="nx">height</span> <span class="o">/</span> <span class="mi">4</span><span class="p">;</span>    <span class="c1">// uv数据的长度
+</span><span class="c1"></span>    <span class="kr">const</span> <span class="nx">cbData</span> <span class="o">=</span> <span class="nx">i420Data</span><span class="p">.</span><span class="nx">subarray</span><span class="p">(</span><span class="nx">yDataLength</span><span class="p">,</span> <span class="nx">yDataLength</span> <span class="o">+</span> <span class="nx">cbDataLength</span><span class="p">);</span>
+    <span class="nx">gl</span><span class="p">.</span><span class="nx">activeTexture</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE1</span><span class="p">);</span>              <span class="c1">// 激活U纹理单元
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">bindTexture</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE_2D</span><span class="p">,</span> <span class="nx">uTextureRef</span><span class="p">);</span> <span class="c1">// 绑定U纹理到当前GL
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">texImage2D</span><span class="p">(</span>                              <span class="c1">// 加载图片数据到U纹理中
+</span><span class="c1"></span>      <span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE_2D</span><span class="p">,</span>
+      <span class="mi">0</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">LUMINANCE</span><span class="p">,</span>
+      <span class="nx">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="nx">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="mi">0</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">LUMINANCE</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">UNSIGNED_BYTE</span><span class="p">,</span>
+      <span class="nx">cbData</span>
+    <span class="p">);</span>
+
+    <span class="kr">const</span> <span class="nx">crDataLength</span> <span class="o">=</span> <span class="nx">cbDataLength</span><span class="p">;</span>          <span class="c1">//uv数据长度
+</span><span class="c1"></span>    <span class="kr">const</span> <span class="nx">crData</span> <span class="o">=</span> <span class="nx">i420Data</span><span class="p">.</span><span class="nx">subarray</span><span class="p">(</span>
+      <span class="nx">yDataLength</span> <span class="o">+</span> <span class="nx">cbDataLength</span><span class="p">,</span>
+      <span class="nx">yDataLength</span> <span class="o">+</span> <span class="nx">cbDataLength</span> <span class="o">+</span> <span class="nx">crDataLength</span>
+    <span class="p">);</span>
+
+    <span class="nx">gl</span><span class="p">.</span><span class="nx">activeTexture</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE2</span><span class="p">);</span>              <span class="c1">// 激活V纹理单元
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">bindTexture</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE_2D</span><span class="p">,</span> <span class="nx">vTextureRef</span><span class="p">);</span> <span class="c1">// 绑定V纹理到当前GL
+</span><span class="c1"></span>    <span class="nx">gl</span><span class="p">.</span><span class="nx">texImage2D</span><span class="p">(</span>                              <span class="c1">// 加载图片数据到V纹理中
+</span><span class="c1"></span>      <span class="nx">gl</span><span class="p">.</span><span class="nx">TEXTURE_2D</span><span class="p">,</span>
+      <span class="mi">0</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">LUMINANCE</span><span class="p">,</span>
+      <span class="nx">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="nx">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="mi">0</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">LUMINANCE</span><span class="p">,</span>
+      <span class="nx">gl</span><span class="p">.</span><span class="nx">UNSIGNED_BYTE</span><span class="p">,</span>
+      <span class="nx">crData</span>
+    <span class="p">);</span>
+
+    <span class="nx">gl</span><span class="p">.</span><span class="nx">drawArrays</span><span class="p">(</span><span class="nx">gl</span><span class="p">.</span><span class="nx">TRIANGLE_STRIP</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>     <span class="c1">// 根据gl_Position的顶点, 通过绘制两个有共享边的三角形的方式绘制一个矩形
+</span><span class="c1"></span>  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>总体来说, 就是绘制一个矩形, 将yuv作为纹理, 画到矩形上, 实现渲染.</p>
+<p>这里推荐一个关于webgl的阅读资料<a href="https://webglfundamentals.org/webgl/lessons/zh_cn/webgl-fundamentals.html">webglfundations</a>.</p>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">shandowc</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-11-18
+        <a href="/commit/c3654d11a101de50dab948e7b7b7f45a40f3cd31" title="add drawer">(c3654d1)</a>
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+          <a href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+          <a href="/tags/wasm/">wasm</a>
+          <a href="/tags/%E6%92%AD%E6%94%BE%E5%99%A8/">播放器</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/gofunclatency/">
+            <span class="next-text nav-default">Gofunclatency</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2020-11-11 15:47:07 \u002b0800 CST',
+        title: '[源码阅读] WXInlinePlayer',
+        clientID: '43ce905c941460b2c43d',
+        clientSecret: '7ec11b9eb1c5af5df4cf797f0d5221b4fd869aaa',
+        repo: 'shandowc.github.io',
+        owner: 'shandowc',
+        admin: ['shandowc'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zhxiaod3@gmail.com" class="iconfont icon-email" title="email"></a>
+  <a href="https://shandowc.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">shandowc</span>
+  </span>
+</div>
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.d7b7ada643c9c1a983026e177f141f7363b4640d619caf01d8831a6718cd44ea.js"></script>
+
+
+
+
+
+
+<script src="https://cdn.bootcss.com/mermaid/8.4.8/mermaid.min.js"></script>
+
+
+
+
+</body>
+</html>

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on shandowc&#39;s blog</title>
-    <link>https://shandowc.github.io/post/</link>
-    <description>Recent content in Posts on shandowc&#39;s blog</description>
+    <title>wasm on shandowc&#39;s blog</title>
+    <link>https://shandowc.github.io/tags/wasm/</link>
+    <description>Recent content in wasm on shandowc&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <lastBuildDate>Wed, 11 Nov 2020 15:47:07 +0800</lastBuildDate>
     
-	<atom:link href="https://shandowc.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://shandowc.github.io/tags/wasm/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -18,15 +18,6 @@
       
       <guid>https://shandowc.github.io/post/wxinlineplayer/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;是一个使用wasm软解视频的播放器，支持h264/h265播放。今天我们阅读一下他们的源码，主要以增加代码注释以及画图等方式加深理解。&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Gofunclatency</title>
-      <link>https://shandowc.github.io/post/gofunclatency/</link>
-      <pubDate>Wed, 15 Jul 2020 12:12:35 +0800</pubDate>
-      
-      <guid>https://shandowc.github.io/post/gofunclatency/</guid>
-      <description>&lt;p&gt;本文介绍怎么实现一个可用的gofunclatency脚本。&lt;/p&gt;</description>
     </item>
     
   </channel>
