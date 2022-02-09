@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Gofunclatency - shandowc&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="shandowc" /><meta name="description" content="本文介绍怎么实现一个可用的gofunclatency脚本。
+" /><meta name="keywords" content="shandowc" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.92.1 with theme even" />
+
+
+<link rel="canonical" href="https://shandowc.github.io/post/gofunclatency/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Gofunclatency" />
+<meta property="og:description" content="本文介绍怎么实现一个可用的gofunclatency脚本。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shandowc.github.io/post/gofunclatency/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-07-15T12:12:35+08:00" />
+<meta property="article:modified_time" content="2020-07-15T12:21:51+08:00" />
+
+<meta itemprop="name" content="Gofunclatency">
+<meta itemprop="description" content="本文介绍怎么实现一个可用的gofunclatency脚本。"><meta itemprop="datePublished" content="2020-07-15T12:12:35+08:00" />
+<meta itemprop="dateModified" content="2020-07-15T12:21:51+08:00" />
+<meta itemprop="wordCount" content="6831">
+<meta itemprop="keywords" content="bcc,go,funclatency," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Gofunclatency"/>
+<meta name="twitter:description" content="本文介绍怎么实现一个可用的gofunclatency脚本。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">shandowc&#39;s blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">shandowc&#39;s blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Gofunclatency</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-07-15 </span>
+        <div class="post-category">
+            <a href="/categories/bcc/"> bcc </a>
+            </div>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#起因">起因</a></li>
+    <li><a href="#环境">环境</a></li>
+    <li><a href="#funclatency实现原理探索">funclatency实现原理探索</a></li>
+    <li><a href="#go的线程id之困">go的线程id之困</a></li>
+    <li><a href="#go的栈扩展之殇">go的栈扩展之殇</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>本文介绍怎么实现一个可用的gofunclatency脚本。</p>
+<h2 id="起因">起因</h2>
+<p>最近对<a href="https://github.com/iovisor/bcc">bcc</a>产生了一些兴趣，而我工作语言是golang，因此打算实现一个gofunclancy。有人会问bcc tools里面不是自带了一个<a href="https://github.com/iovisor/bcc/blob/master/tools/funclatency.py">funclatency</a>吗？实际上这个工具不能直接应用于golang。我们接下来将从原生的funclatency的原理以及实现讲起，然后看下golang是哪里不适合这个工具，并逐步提出解决方案。</p>
+<p>特别心急的小伙伴可以直接看我的实现源码：<a href="https://github.com/shandowc/bcc/blob/master/tools/gofunclatency.py">gofunclatency</a>，中度心急的可以看每个小节的倒数一两段的总结，不急的可以从头到尾看一遍，帮忙找找错漏。</p>
+<h2 id="环境">环境</h2>
+<table>
+<thead>
+<tr>
+<th>软件</th>
+<th>版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>操作系统</td>
+<td>Arch Linux</td>
+</tr>
+<tr>
+<td>go</td>
+<td>1.12.7</td>
+</tr>
+<tr>
+<td>gcc</td>
+<td>9.3.0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="funclatency实现原理探索">funclatency实现原理探索</h2>
+<p>以一个简单的C程序作为范例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="kt">int</span> <span class="nf">wait4input</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+    <span class="kt">int</span> <span class="n">ch</span><span class="p">;</span>
+
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">getchar</span><span class="p">();</span>
+    <span class="k">while</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="o">!=</span><span class="n">getchar</span><span class="p">());</span>
+
+    <span class="k">return</span> <span class="n">ch</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">attack</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">i</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;waiting for gdb</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="n">wait4input</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;gdb ready</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">attack</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>编译的时候记得禁止任何优化，否则attack会被内联：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">gcc hello.c -O0 -o hello.bin
+</code></pre></td></tr></table>
+</div>
+</div><p>接着打开一个窗口A运行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">./hello.bin 
+</code></pre></td></tr></table>
+</div>
+</div><p>另外一个窗口B执行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">gdb -p `pgrep hello.bin`
+</code></pre></td></tr></table>
+</div>
+</div><p>在窗口B给<code>i++</code>那行打个断点，然后continue，再在窗口A随便输入点东西让程序继续。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">(gdb) b hello.c:15
+Breakpoint 1 at 0x55c71f396170: file hello.c, line 15.
+(gdb) c
+Continuing.
+
+Breakpoint 1, attack (i=0) at hello.c:15
+15	    i++;
+</code></pre></td></tr></table>
+</div>
+</div><p>完成上面的步骤后，在使用funclatency之前，我们先看看原来的代码是怎么样的：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">(gdb) disass
+Dump of assembler code for function attack:
+   0x000055d574cb7169 &lt;+0&gt;:	push   %rbp
+   0x000055d574cb716a &lt;+1&gt;:	mov    %rsp,%rbp
+   0x000055d574cb716d &lt;+4&gt;:	mov    %edi,-0x4(%rbp)
+=&gt; 0x000055d574cb7170 &lt;+7&gt;:	addl   $0x1,-0x4(%rbp)
+   0x000055d574cb7174 &lt;+11&gt;:	nop
+   0x000055d574cb7175 &lt;+12&gt;:	pop    %rbp
+   0x000055d574cb7176 &lt;+13&gt;:	retq   
+End of assembler dump.
+</code></pre></td></tr></table>
+</div>
+</div><p>我们反汇编了attack函数，可以看到经典的保存rbp指针，将rsp指针赋予rbp指针的函数栈操作。而edi是用于存储第一个函数的寄存器，我们把这个函数放到临时的栈位置上，然后加1，这和<code>i++</code>的语义是一样的。最后是恢复rbp指针和返回上级函数。在断点，也就是上面小箭头的位置上，我们可以知道，栈上保存了rbp原来的值，以及返回地址。返回地址应该是main函数调用完attack函数后的下一个指令的地址，我们验证一下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">(gdb) x/8xg $rsp
+0x7ffce76e1b40:	0x00007ffce76e1b60	0x000055d574cb71af
+0x7ffce76e1b50:	0x00007ffce76e1c50	0x0000000000000000
+0x7ffce76e1b60:	0x0000000000000000	0x00007f0fb550a023
+0x7ffce76e1b70:	0x00007f0fb57005c0	0x00007ffce76e1c58
+(gdb) disass main
+Dump of assembler code for function main:
+   0x000055d574cb7177 &lt;+0&gt;:	push   %rbp
+   0x000055d574cb7178 &lt;+1&gt;:	mov    %rsp,%rbp
+   0x000055d574cb717b &lt;+4&gt;:	sub    $0x10,%rsp
+   0x000055d574cb717f &lt;+8&gt;:	lea    0xe7e(%rip),%rdi        # 0x55d574cb8004
+   0x000055d574cb7186 &lt;+15&gt;:	callq  0x55d574cb7030 &lt;puts@plt&gt;
+   0x000055d574cb718b &lt;+20&gt;:	callq  0x55d574cb7149 &lt;wait4input&gt;
+   0x000055d574cb7190 &lt;+25&gt;:	lea    0xe7d(%rip),%rdi        # 0x55d574cb8014
+   0x000055d574cb7197 &lt;+32&gt;:	callq  0x55d574cb7030 &lt;puts@plt&gt;
+   0x000055d574cb719c &lt;+37&gt;:	movl   $0x0,-0x4(%rbp)
+   0x000055d574cb71a3 &lt;+44&gt;:	jmp    0x55d574cb71b3 &lt;main+60&gt;
+   0x000055d574cb71a5 &lt;+46&gt;:	mov    -0x4(%rbp),%eax
+   0x000055d574cb71a8 &lt;+49&gt;:	mov    %eax,%edi
+   0x000055d574cb71aa &lt;+51&gt;:	callq  0x55d574cb7169 &lt;attack&gt;
+   0x000055d574cb71af &lt;+56&gt;:	addl   $0x1,-0x4(%rbp)
+   0x000055d574cb71b3 &lt;+60&gt;:	cmpl   $0xf423f,-0x4(%rbp)
+   0x000055d574cb71ba &lt;+67&gt;:	jle    0x55d574cb71a5 &lt;main+46&gt;
+   0x000055d574cb71bc &lt;+69&gt;:	mov    $0x0,%eax
+   0x000055d574cb71c1 &lt;+74&gt;:	leaveq 
+   0x000055d574cb71c2 &lt;+75&gt;:	retq   
+End of assembler dump.
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到<code>0x000055d574cb71af</code>确实是main函数调用完attack后的下一个指令的地址。接着，我们看下用funclatency测量attack函数的耗时后，程序会出现什么变化，打开窗口C，执行：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">[root@archlinux perf]# funclatency `realpath hello.bin`:attack
+Tracing 1 functions for &#34;/data/workspace/perf/hello.bin:attack&#34;... Hit Ctrl-C to end.
+</code></pre></td></tr></table>
+</div>
+</div><p>然后在窗口B的gdb终端里再看一下汇编代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">(gdb) c
+Continuing.
+
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0x000055d574cb7171 in attack (i=2) at hello.c:15
+15	    i++;
+(gdb) disass
+Dump of assembler code for function attack:
+   0x000055d574cb7169 &lt;+0&gt;:	int3   
+   0x000055d574cb716a &lt;+1&gt;:	mov    %rsp,%rbp
+   0x000055d574cb716d &lt;+4&gt;:	mov    %edi,-0x4(%rbp)
+   0x000055d574cb7170 &lt;+7&gt;:	addl   $0x1,-0x4(%rbp)
+   0x000055d574cb7174 &lt;+11&gt;:	nop
+   0x000055d574cb7175 &lt;+12&gt;:	pop    %rbp
+   0x000055d574cb7176 &lt;+13&gt;:	retq   
+End of assembler dump.
+</code></pre></td></tr></table>
+</div>
+</div><p>我们先continue一下，进入下一个attack循环断点，发现原来的代码位置<code>0x000055d574cb7169</code>的<code>push %rbp</code>指令变成了<code>int3</code>。<code>int3</code>是一个软中断，用于给gdb等程序作为断点使用，这里是被funclatency加入了一个<code>断点</code>。</p>
+<p>funclatency既然是计算函数延迟，不会只在函数开始的时候断点，结束的时候也应该有个断点。看管们别急，我们再看一下刚才说的栈返回地址的地方：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">(gdb) x/8xg $rsp
+0x7ffce76e1b40:	0x00007ffce76e1b60	0x00007fffffffe000
+0x7ffce76e1b50:	0x00007ffce76e1c50	0x0000000200000000
+0x7ffce76e1b60:	0x0000000000000000	0x00007f0fb550a023
+0x7ffce76e1b70:	0x00007f0fb57005c0	0x00007ffce76e1c58
+</code></pre></td></tr></table>
+</div>
+</div><p>我们发现，应该返回的地址<code>0x000055d574cb71af</code>变成了<code>0x00007fffffffe000</code>。这个地址里面是什么呢？我们尝试gdb打印一下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">(gdb) x/1xb 0x00007fffffffe000
+0x7fffffffe000:	Cannot access memory at address 0x7fffffffe000
+</code></pre></td></tr></table>
+</div>
+</div><p>居然看不到，看不到也没关系，我们看下这块内存是干啥的：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">[root@archlinux perf]# cat /proc/`pgrep hello.bin`/maps
+55d574cb6000-55d574cb7000 r--p 00000000 08:12 14554273                   /data/workspace/perf/hello.bin
+55d574cb7000-55d574cb8000 r-xp 00001000 08:12 14554273                   /data/workspace/perf/hello.bin
+55d574cb8000-55d574cb9000 r--p 00002000 08:12 14554273                   /data/workspace/perf/hello.bin
+55d574cb9000-55d574cba000 r--p 00002000 08:12 14554273                   /data/workspace/perf/hello.bin
+55d574cba000-55d574cbb000 rw-p 00003000 08:12 14554273                   /data/workspace/perf/hello.bin
+55d57530f000-55d575330000 rw-p 00000000 00:00 0                          [heap]
+7f0fb54e3000-7f0fb5508000 r--p 00000000 08:02 3935586                    /usr/lib/libc-2.31.so
+7f0fb5508000-7f0fb5654000 r-xp 00025000 08:02 3935586                    /usr/lib/libc-2.31.so
+7f0fb5654000-7f0fb569f000 r--p 00171000 08:02 3935586                    /usr/lib/libc-2.31.so
+7f0fb569f000-7f0fb56a2000 r--p 001bb000 08:02 3935586                    /usr/lib/libc-2.31.so
+7f0fb56a2000-7f0fb56a5000 rw-p 001be000 08:02 3935586                    /usr/lib/libc-2.31.so
+7f0fb56a5000-7f0fb56ab000 rw-p 00000000 00:00 0 
+7f0fb56d5000-7f0fb56d7000 r--p 00000000 08:02 3935574                    /usr/lib/ld-2.31.so
+7f0fb56d7000-7f0fb56f7000 r-xp 00002000 08:02 3935574                    /usr/lib/ld-2.31.so
+7f0fb56f7000-7f0fb56ff000 r--p 00022000 08:02 3935574                    /usr/lib/ld-2.31.so
+7f0fb5700000-7f0fb5701000 r--p 0002a000 08:02 3935574                    /usr/lib/ld-2.31.so
+7f0fb5701000-7f0fb5702000 rw-p 0002b000 08:02 3935574                    /usr/lib/ld-2.31.so
+7f0fb5702000-7f0fb5703000 rw-p 00000000 00:00 0 
+7ffce76c2000-7ffce76e3000 rw-p 00000000 00:00 0                          [stack]
+7ffce77d1000-7ffce77d5000 r--p 00000000 00:00 0                          [vvar]
+7ffce77d5000-7ffce77d7000 r-xp 00000000 00:00 0                          [vdso]
+7fffffffe000-7ffffffff000 --xp 00000000 00:00 0                          [uprobes]
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，这块内存是在<code>[uprobe]</code>这个区域，根据<a href="https://code.woboq.org/linux/linux/kernel/events/uprobes.c.html#get_trampoline_vaddr">get_trampoline_vaddr</a>，这是一个跳板区域，在函数返回之后，先执行这个跳板区域的程序，然后再返回原来应该返回的地址。</p>
+<p>至此，我们知道了funclatency是：</p>
+<ol>
+<li>在函数开始的地方加了个<code>int3</code>软中断，执行一段程序；</li>
+<li>修改栈中保存的返回地址，改为<code>[uprobes]</code>里面的一个跳板区域，执行一段特殊程序后正常返回原地址。</li>
+</ol>
+<p>第一点就是uprobe的原理，第二点就是uretprobe的原理。这里我们暂不探讨kprobe和kretprobe。</p>
+<p>我们已经初步知道所谓<code>断点</code>的机制，下面我们将通过阅读funclatency源码，了解程序在<code>断点</code>中注入了什么(下面都是摘抄片段，有需要看完整源码请看<a href="https://github.com/iovisor/bcc/blob/master/tools/funclatency.py">funclatency</a>)：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">b</span><span class="o">.</span><span class="n">attach_uprobe</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">library</span><span class="p">,</span> <span class="n">sym_re</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span> <span class="n">fn_name</span><span class="o">=</span><span class="s2">&#34;trace_func_entry&#34;</span><span class="p">,</span>
+                    <span class="n">pid</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pid</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">b</span><span class="o">.</span><span class="n">attach_uretprobe</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">library</span><span class="p">,</span> <span class="n">sym_re</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span>
+                    <span class="n">fn_name</span><span class="o">=</span><span class="s2">&#34;trace_func_return&#34;</span><span class="p">,</span> <span class="n">pid</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pid</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其中library为程序路径或者库名，pattern是函数的正则表达式，我们往这个程序的这些函数里面注入uprobe和uretprobe。uprobe里面是执行了一个<code>trace_func_entry</code>函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">BPF_HASH</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">u32</span><span class="p">);</span>
+<span class="n">STORAGE</span>
+
+<span class="kt">int</span> <span class="nf">trace_func_entry</span><span class="p">(</span><span class="k">struct</span> <span class="n">pt_regs</span> <span class="o">*</span><span class="n">ctx</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">u64</span> <span class="n">pid_tgid</span> <span class="o">=</span> <span class="n">bpf_get_current_pid_tgid</span><span class="p">();</span>
+    <span class="n">u32</span> <span class="n">pid</span> <span class="o">=</span> <span class="n">pid_tgid</span><span class="p">;</span>
+    <span class="n">u32</span> <span class="n">tgid</span> <span class="o">=</span> <span class="n">pid_tgid</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">;</span>
+    <span class="n">u64</span> <span class="n">ts</span> <span class="o">=</span> <span class="n">bpf_ktime_get_ns</span><span class="p">();</span>
+
+    <span class="n">FILTER</span>
+    <span class="n">ENTRYSTORE</span>
+    <span class="n">start</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ts</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其中bpf_get_current_pid_tgid是获取进程的pid和tgid，这是内核的概念，内核的pid相当于用户空间的线程id，内核的tgid才是用户空间的进程id，为了避免混乱，下面我们分别以用户角度简称<code>线程id</code>和<code>进程id</code>。可以看到，我们以线程id作为键，存下了开始的纳秒时间(bpf_ktime_get_ns)。</p>
+<p>然后我们看下uretprobe的<code>trace_func_return</code>函数干了啥：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C" data-lang="C"><span class="kt">int</span> <span class="nf">trace_func_return</span><span class="p">(</span><span class="k">struct</span> <span class="n">pt_regs</span> <span class="o">*</span><span class="n">ctx</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">u64</span> <span class="o">*</span><span class="n">tsp</span><span class="p">,</span> <span class="n">delta</span><span class="p">;</span>
+    <span class="n">u64</span> <span class="n">pid_tgid</span> <span class="o">=</span> <span class="n">bpf_get_current_pid_tgid</span><span class="p">();</span>
+    <span class="n">u32</span> <span class="n">pid</span> <span class="o">=</span> <span class="n">pid_tgid</span><span class="p">;</span>
+    <span class="n">u32</span> <span class="n">tgid</span> <span class="o">=</span> <span class="n">pid_tgid</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">;</span>
+
+    <span class="c1">// calculate delta time
+</span><span class="c1"></span>    <span class="n">tsp</span> <span class="o">=</span> <span class="n">start</span><span class="p">.</span><span class="n">lookup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pid</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">tsp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>   <span class="c1">// missed start
+</span><span class="c1"></span>    <span class="p">}</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">bpf_ktime_get_ns</span><span class="p">()</span> <span class="o">-</span> <span class="o">*</span><span class="n">tsp</span><span class="p">;</span> <span class="c1">//重点关注
+</span><span class="c1"></span>    <span class="n">start</span><span class="p">.</span><span class="n">delete</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pid</span><span class="p">);</span>
+    <span class="n">FACTOR</span>
+
+    <span class="c1">// store as histogram
+</span><span class="c1"></span>    <span class="n">STORE</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，我们先用当前的线程id查到开始时间，然后用现在时间减去开始时间得到delta，以纳秒计算的时间差，这就是这个函数的延迟。有人可能会有疑惑，那delta没看到哪里用呀？其实STORE是一个宏，负责存储：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">bpf_text</span> <span class="o">=</span> <span class="n">bpf_text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;STORAGE&#39;</span><span class="p">,</span> <span class="s1">&#39;BPF_HISTOGRAM(dist);&#39;</span><span class="p">)</span>
+<span class="n">bpf_text</span> <span class="o">=</span> <span class="n">bpf_text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;STORE&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dist.increment(bpf_log2l(delta));&#39;</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>我们把值存到了一个dist这个直方图类型里面，最后是打印出来：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="n">dist</span><span class="o">.</span><span class="n">print_log2_hist</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>至此，funclatency的uprobe部分在我们眼里再无秘密。总结一下就是，funclatency相当于在函数开始的地方加了一个uprobe，也就是替换第一个指令为int3，进入中断处理函数，在中断处理函数中用<code>线程id</code>作为键，存了开始的时间<code>t1</code>；然后加个uretprobe，也就是修改栈上保存的返回地址，指向一个跳板区域，跳板区域里面用<code>线程id</code>查找到开始时间<code>t1</code>, 用现在的时间<code>t2-t1</code>，得到延迟时间<code>t'</code>，最后打印时间分布直方图。</p>
+<p>原生funclatency的原理我们很清楚了，下面我们将探索funclatency不适用于go的原因。</p>
+<h2 id="go的线程id之困">go的线程id之困</h2>
+<p>老规矩，先来个小程序提神醒脑，提出问题：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="cm">/*
+</span><span class="cm">#include &lt;sys/types.h&gt;
+</span><span class="cm">extern pid_t gettid(void);
+</span><span class="cm">*/</span>
+<span class="kn">import</span> <span class="s">&#34;C&#34;</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;fmt&#34;</span>
+	<span class="s">&#34;time&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">bark</span><span class="p">(</span><span class="nx">prefix</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;[%s] tid is %d\n&#34;</span><span class="p">,</span> <span class="nx">prefix</span><span class="p">,</span> <span class="nx">C</span><span class="p">.</span><span class="nf">gettid</span><span class="p">())</span>
+	<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;[%s] tid is %d\n&#34;</span><span class="p">,</span> <span class="nx">prefix</span><span class="p">,</span> <span class="nx">C</span><span class="p">.</span><span class="nf">gettid</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">go</span> <span class="nf">bark</span><span class="p">(</span><span class="s">&#34;b&#34;</span><span class="p">)</span>
+	<span class="nf">bark</span><span class="p">(</span><span class="s">&#34;a&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>多跑几次</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">[root@archlinux perf]# go run gotid.go
+[a] tid is 480820
+[b] tid is 480822
+[a] tid is 480823
+[root@archlinux perf]# go run gotid.go
+[a] tid is 480923
+[b] tid is 480926
+[a] tid is 480927
+</code></pre></td></tr></table>
+</div>
+</div><p>我们发现，线程id居然在函数a中间变了，这在普通的多线程C/C++函数里面难以想象，这也导致了funclatency脚本以tid作为键存储函数开始时间变得不可行。很自然的，为了测量函数的延迟，我们需要找另一个键，一个能表示这个函数的这次运行的唯一的键。比如goroutine id。那么，怎么获取goroutine id呢？(以下简称goid)</p>
+<p>遗憾的是，经过一番查找，目前go官方没有暴露任何获得goid的方法，但是由于go是开源的，我们可以看源码。经过看源码，我们发现goid存储在G结构体中：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">g</span> <span class="kd">struct</span> <span class="p">{</span>
+<span class="o">...</span><span class="nx">省略N行无关代码</span><span class="o">...</span>
+	<span class="nx">goid</span>           <span class="kt">int64</span>
+<span class="o">...</span><span class="nx">省略N行无关代码</span><span class="o">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>而在runtime包里面，获取当前的g是通过如下方法：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="c1">// getg returns the pointer to the current g.
+</span><span class="c1">// The compiler rewrites calls to this function into instructions
+</span><span class="c1">// that fetch the g directly (from TLS or from the dedicated register).
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">getg</span><span class="p">()</span> <span class="o">*</span><span class="nx">g</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>难以置信，不知道是不是老眼昏花，笔者我居然找不到这个函数的实现，看来只能是按照这个函数的注释，是编译器把这个调用直接转成指令了。不过既然能编译出来，那我们找个调用了getg函数的比较短的父函数反汇编一下。在这里我们找了<code>runtime.showframe</code>函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="c1">// showframe reports whether the frame with the given characteristics should
+</span><span class="c1">// be printed during a traceback.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">showframe</span><span class="p">(</span><span class="nx">f</span> <span class="nx">funcInfo</span><span class="p">,</span> <span class="nx">gp</span> <span class="o">*</span><span class="nx">g</span><span class="p">,</span> <span class="nx">firstFrame</span> <span class="kt">bool</span><span class="p">,</span> <span class="nx">funcID</span><span class="p">,</span> <span class="nx">childID</span> <span class="nx">funcID</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="nx">g</span> <span class="o">:=</span> <span class="nf">getg</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">g</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">throwing</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">gp</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">gp</span> <span class="o">==</span> <span class="nx">g</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">curg</span> <span class="o">||</span> <span class="nx">gp</span> <span class="o">==</span> <span class="nx">g</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">caughtsig</span><span class="p">.</span><span class="nf">ptr</span><span class="p">())</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">true</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nf">showfuncinfo</span><span class="p">(</span><span class="nx">f</span><span class="p">,</span> <span class="nx">firstFrame</span><span class="p">,</span> <span class="nx">funcID</span><span class="p">,</span> <span class="nx">childID</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">(gdb) disass &#39;runtime.showframe&#39;
+Dump of assembler code for function runtime.showframe:
+   0x0000000000449df0 &lt;+0&gt;:	mov    %fs:0xfffffffffffffff8,%rcx
+   0x0000000000449df9 &lt;+9&gt;:	cmp    0x10(%rcx),%rsp
+   0x0000000000449dfd &lt;+13&gt;:	jbe    0x449ea8 &lt;runtime.showframe+184&gt;
+   0x0000000000449e03 &lt;+19&gt;:	sub    $0x28,%rsp
+   0x0000000000449e07 &lt;+23&gt;:	mov    %rbp,0x20(%rsp)
+   0x0000000000449e0c &lt;+28&gt;:	lea    0x20(%rsp),%rbp
+   0x0000000000449e11 &lt;+33&gt;:	mov    %fs:0xfffffffffffffff8,%rax
+   0x0000000000449e1a &lt;+42&gt;:	mov    0x30(%rax),%rax
+   0x0000000000449e1e &lt;+46&gt;:	cmpl   $0x0,0xf4(%rax)
+   0x0000000000449e25 &lt;+53&gt;:	jle    0x449e43 &lt;runtime.showframe+83&gt;
+   0x0000000000449e27 &lt;+55&gt;:	mov    0x40(%rsp),%rcx
+   0x0000000000449e2c &lt;+60&gt;:	test   %rcx,%rcx
+   0x0000000000449e2f &lt;+63&gt;:	je     0x449e43 &lt;runtime.showframe+83&gt;
+   0x0000000000449e31 &lt;+65&gt;:	cmp    %rcx,0xc0(%rax)
+   0x0000000000449e38 &lt;+72&gt;:	jne    0x449e98 &lt;runtime.showframe+168&gt;
+   0x0000000000449e3a &lt;+74&gt;:	mov    $0x1,%eax
+   0x0000000000449e3f &lt;+79&gt;:	test   %al,%al
+   0x0000000000449e41 &lt;+81&gt;:	jne    0x449e89 &lt;runtime.showframe+153&gt;
+   0x0000000000449e43 &lt;+83&gt;:	mov    0x30(%rsp),%rax
+   0x0000000000449e48 &lt;+88&gt;:	mov    %rax,(%rsp)
+   0x0000000000449e4c &lt;+92&gt;:	mov    0x38(%rsp),%rax
+   0x0000000000449e51 &lt;+97&gt;:	mov    %rax,0x8(%rsp)
+   0x0000000000449e56 &lt;+102&gt;:	movzbl 0x48(%rsp),%eax
+   0x0000000000449e5b &lt;+107&gt;:	mov    %al,0x10(%rsp)
+   0x0000000000449e5f &lt;+111&gt;:	movzbl 0x49(%rsp),%eax
+   0x0000000000449e64 &lt;+116&gt;:	mov    %al,0x11(%rsp)
+   0x0000000000449e68 &lt;+120&gt;:	movzbl 0x4a(%rsp),%eax
+   0x0000000000449e6d &lt;+125&gt;:	mov    %al,0x12(%rsp)
+   0x0000000000449e71 &lt;+129&gt;:	callq  0x449ec0 &lt;runtime.showfuncinfo&gt;
+   0x0000000000449e76 &lt;+134&gt;:	movzbl 0x18(%rsp),%eax
+   0x0000000000449e7b &lt;+139&gt;:	mov    %al,0x50(%rsp)
+   0x0000000000449e7f &lt;+143&gt;:	mov    0x20(%rsp),%rbp
+   0x0000000000449e84 &lt;+148&gt;:	add    $0x28,%rsp
+   0x0000000000449e88 &lt;+152&gt;:	retq   
+   0x0000000000449e89 &lt;+153&gt;:	movb   $0x1,0x50(%rsp)
+   0x0000000000449e8e &lt;+158&gt;:	mov    0x20(%rsp),%rbp
+   0x0000000000449e93 &lt;+163&gt;:	add    $0x28,%rsp
+   0x0000000000449e97 &lt;+167&gt;:	retq   
+   0x0000000000449e98 &lt;+168&gt;:	mov    0xc8(%rax),%rdx
+   0x0000000000449e9f &lt;+175&gt;:	cmp    %rcx,%rdx
+   0x0000000000449ea2 &lt;+178&gt;:	sete   %al
+   0x0000000000449ea5 &lt;+181&gt;:	nop
+   0x0000000000449ea6 &lt;+182&gt;:	jmp    0x449e3f &lt;runtime.showframe+79&gt;
+   0x0000000000449ea8 &lt;+184&gt;:	callq  0x451470 &lt;runtime.morestack_noctxt&gt;
+   0x0000000000449ead &lt;+189&gt;:	jmpq   0x449df0 &lt;runtime.showframe&gt;
+End of assembler dump.
+</code></pre></td></tr></table>
+</div>
+</div><p>哎，这哗啦啦的一堆汇编代码，搞得像电视里面特工的电脑画面一样。那么一堆，那么getg的汇编代码在哪里？别急，我们稍微扫一眼汇编，<code>runtime.showfuncinfo</code>并没有被内联进来，这大大降低了我们的阅读难度；其次<code>g.m.throwing &gt; 0</code>这个真是令人感动，我们只要找到立即数0就好，果然，一眼就发现<code>cmpl   $0x0,0xf4(%rax)</code>，那么<code>0xf4(%rax)</code>明显是<code>throwing</code>，我们合理推测<code>%rax</code>里面是<code>g.m</code>的地址，看代码验证一下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">m</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">g0</span>      <span class="o">*</span><span class="nx">g</span>     <span class="c1">// goroutine with scheduling stack
+</span><span class="c1"></span>	<span class="nx">morebuf</span> <span class="nx">gobuf</span>  <span class="c1">// gobuf arg to morestack
+</span><span class="c1"></span>	<span class="nx">divmod</span>  <span class="kt">uint32</span> <span class="c1">// div/mod denominator for arm - known to liblink
+</span><span class="c1"></span>
+	<span class="c1">// Fields not known to debuggers.
+</span><span class="c1"></span>	<span class="nx">procid</span>        <span class="kt">uint64</span>       <span class="c1">// for debuggers, but offset not hard-coded
+</span><span class="c1"></span>	<span class="nx">gsignal</span>       <span class="o">*</span><span class="nx">g</span>           <span class="c1">// signal-handling g
+</span><span class="c1"></span>	<span class="nx">goSigStack</span>    <span class="nx">gsignalStack</span> <span class="c1">// Go-allocated signal handling stack
+</span><span class="c1"></span>	<span class="nx">sigmask</span>       <span class="nx">sigset</span>       <span class="c1">// storage for saved signal mask
+</span><span class="c1"></span>	<span class="nx">tls</span>           <span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="kt">uintptr</span>   <span class="c1">// thread-local storage (for x86 extern register)
+</span><span class="c1"></span>	<span class="nx">mstartfn</span>      <span class="kd">func</span><span class="p">()</span>
+	<span class="nx">curg</span>          <span class="o">*</span><span class="nx">g</span>       <span class="c1">// current running goroutine
+</span><span class="c1"></span>	<span class="nx">caughtsig</span>     <span class="nx">guintptr</span> <span class="c1">// goroutine running during fatal signal
+</span><span class="c1"></span>	<span class="nx">p</span>             <span class="nx">puintptr</span> <span class="c1">// attached p for executing go code (nil if not executing go code)
+</span><span class="c1"></span>	<span class="nx">nextp</span>         <span class="nx">puintptr</span>
+	<span class="nx">oldp</span>          <span class="nx">puintptr</span> <span class="c1">// the p that was attached before executing a syscall
+</span><span class="c1"></span>	<span class="nx">id</span>            <span class="kt">int64</span>
+	<span class="nx">mallocing</span>     <span class="kt">int32</span>
+    <span class="nx">throwing</span>      <span class="kt">int32</span>
+<span class="o">...</span><span class="nx">此处省略N行代码</span><span class="o">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>根据内存对齐规则，我们算了一下throwing的偏移，确实是<code>0xf4</code>。那么根据再前一行代码<code>mov    0x30(%rax),%rax</code>，我们猜测这里<code>%rax</code>里面存的是<code>g</code>，一样的办法，我们检查<code>g</code>结构体中<code>m</code>的偏移：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">g</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// Stack parameters.
+</span><span class="c1"></span>	<span class="c1">// stack describes the actual stack memory: [stack.lo, stack.hi).
+</span><span class="c1"></span>	<span class="c1">// stackguard0 is the stack pointer compared in the Go stack growth prologue.
+</span><span class="c1"></span>	<span class="c1">// It is stack.lo+StackGuard normally, but can be StackPreempt to trigger a preemption.
+</span><span class="c1"></span>	<span class="c1">// stackguard1 is the stack pointer compared in the C stack growth prologue.
+</span><span class="c1"></span>	<span class="c1">// It is stack.lo+StackGuard on g0 and gsignal stacks.
+</span><span class="c1"></span>	<span class="c1">// It is ~0 on other goroutine stacks, to trigger a call to morestackc (and crash).
+</span><span class="c1"></span>	<span class="nx">stack</span>       <span class="nx">stack</span>   <span class="c1">// offset known to runtime/cgo
+</span><span class="c1"></span>	<span class="nx">stackguard0</span> <span class="kt">uintptr</span> <span class="c1">// offset known to liblink
+</span><span class="c1"></span>	<span class="nx">stackguard1</span> <span class="kt">uintptr</span> <span class="c1">// offset known to liblink
+</span><span class="c1"></span>
+	<span class="nx">_panic</span>         <span class="o">*</span><span class="nx">_panic</span> <span class="c1">// innermost panic - offset known to liblink
+</span><span class="c1"></span>	<span class="nx">_defer</span>         <span class="o">*</span><span class="nx">_defer</span> <span class="c1">// innermost defer
+</span><span class="c1"></span>    <span class="nx">m</span>              <span class="o">*</span><span class="nx">m</span>      <span class="c1">// current m; offset known to arm liblink
+</span><span class="c1"></span><span class="o">...</span><span class="nx">此处省略N行代码</span><span class="o">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>确实是<code>0x30</code>，那我们很容易知道<code>mov    %fs:0xfffffffffffffff8,%rax</code>，这句代码就是getg。<code>%fs</code>是x86的一个段寄存器，主要用来存储TLS（Thread Local Storage），就是线程本地变量。但是，对于funclatency程序来说，看上去我们能获取的只有<code>struct pt_regs</code>变量：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">trace_func_entry</span><span class="p">(</span><span class="k">struct</span> <span class="n">pt_regs</span> <span class="o">*</span><span class="n">ctx</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">...</span><span class="err">省略</span><span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>结构体定义在&lt;uapi/asm/ptrace.h&gt;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">pt_regs</span> <span class="p">{</span>
+<span class="cm">/*
+</span><span class="cm"> * C ABI says these regs are callee-preserved. They aren&#39;t saved on kernel entry
+</span><span class="cm"> * unless syscall needs a complete, fully filled &#34;struct pt_regs&#34;.
+</span><span class="cm"> */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r15</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r14</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r13</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r12</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rbp</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rbx</span><span class="p">;</span>
+<span class="cm">/* These regs are callee-clobbered. Always saved on kernel entry. */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r11</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r10</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r9</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">r8</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rax</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rcx</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rdx</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rsi</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rdi</span><span class="p">;</span>
+<span class="cm">/*
+</span><span class="cm"> * On syscall entry, this is syscall#. On CPU exception, this is error code.
+</span><span class="cm"> * On hw interrupt, it&#39;s IRQ number:
+</span><span class="cm"> */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">orig_rax</span><span class="p">;</span>
+<span class="cm">/* Return frame for iretq */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rip</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">cs</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">eflags</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">rsp</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ss</span><span class="p">;</span>
+<span class="cm">/* top of stack page */</span>
+<span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>没有fs寄存器，但是经过查找，我们发现内核thread_struct结构体里面有：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// arch/x86/include/asm/processor.h
+</span><span class="c1"></span><span class="k">struct</span> <span class="n">thread_struct</span> <span class="p">{</span>
+<span class="p">...</span><span class="err">省略</span><span class="n">N行无关代码</span><span class="p">...</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">fsbase</span><span class="p">;</span>
+<span class="p">...</span><span class="err">省略</span><span class="n">N行无关代码</span><span class="p">...</span>
+<span class="p">}</span>
+
+<span class="c1">// include/linux/sched.h
+</span><span class="c1"></span><span class="k">struct</span> <span class="n">task_struct</span> <span class="p">{</span>
+<span class="p">...</span><span class="err">省略</span><span class="n">N行无关代码</span><span class="p">...</span>
+	<span class="cm">/* CPU-specific state of this task: */</span>
+	<span class="k">struct</span> <span class="n">thread_struct</span>		<span class="kr">thread</span><span class="p">;</span>
+<span class="p">...</span><span class="err">省略</span><span class="n">N行无关代码</span><span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>对于golang来说，根据<a href="https://www.infoq.cn/article/R6wZs7bvQ2Er9kUElBqb">go调度</a>，参考golang的runtime包内的代码，我们可以找出fs每次启动一个新线程设置fs寄存器的路径是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">startm-&gt;newm-&gt;newm1-&gt;newosproc-&gt;clone-&gt;settls-&gt;[系统调用arch_prctl(ARCH_SET_FS, ...)]
+</code></pre></td></tr></table>
+</div>
+</div><p>而系统调用arch_prctl，会修改task_struct-&gt;thread.fsbase。那这个问题就简单了，我们可以写一个获取goid的函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="n">u64</span> <span class="nf">get_goid</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="p">)</span><span class="n">bpf_get_current_task</span><span class="p">();</span>
+    <span class="kt">void</span><span class="o">*</span> <span class="n">fsbase</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">t</span><span class="o">-&gt;</span><span class="kr">thread</span><span class="p">.</span><span class="n">fsbase</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span> <span class="n">g</span><span class="p">;</span>
+    <span class="n">bpf_probe_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">g</span><span class="p">),</span> <span class="n">fsbase</span><span class="o">-</span><span class="mi">8</span><span class="p">);</span>
+    <span class="n">u64</span> <span class="n">goid</span><span class="p">;</span>
+    <span class="n">bpf_probe_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">goid</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">goid</span><span class="p">),</span> <span class="n">g</span><span class="o">+</span><span class="mi">152</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">goid</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其中<code>fsbase-8</code>就是<code>%fs:0xfffffffffffffff8</code>，我们先读取<code>g</code>的指针，然后<code>g+152</code>是<code>goid</code>在<code>g</code>中的偏移。<strong>这里有一些风险，go以后的版本里面goid的位置可能不对，需要使用者注意并处理</strong></p>
+<p>目前为止，x86-64键的问题我们算是比较好地解决了。总而言之，go里面，一个函数运行过程中可能会切换到其它线程运行，不能以线程id作为键关联开始和结束时间。我们这里选择了goid，并探讨了在x86-64系统中获得goid的方法。</p>
+<h2 id="go的栈扩展之殇">go的栈扩展之殇</h2>
+<p>虽然实现了goid的获取，的确让人松了一口气，但是革命尚未成功，问题并不止一个。先来一段程序引入这小节的问题：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+
+<span class="kd">func</span> <span class="nf">joke</span><span class="p">(</span><span class="nx">i</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">arr</span> <span class="p">[</span><span class="mi">2048</span><span class="p">]</span><span class="kt">int</span>
+	<span class="nx">arr</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">i</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">arr</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="nf">joke</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>很简单的程序，简单到编译器都内联了，我们禁止内联：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">go build -gcflags=-l stack.go
+</code></pre></td></tr></table>
+</div>
+</div><p>我们先试着跑一下原来的<code>funclatency</code>脚本，试一下测量<code>main.joke</code>函数的延迟：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">./funclatency &#39;/data/workspace/perf/stack/stack:main.joke&#39;
+</code></pre></td></tr></table>
+</div>
+</div><p>然后启动我们的stack例子程序：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">[root@archlinux stack]# ./stack                   
+runtime: unexpected return pc for main.joke called from 0x7fffffffe000
+stack: frame={sp:0xc00009cf70, fp:0xc00009cf78} stack=[0xc00009c000,0xc00009d000)
+000000c00009ce70:  0000000000000000  0000000000000000 
+000000c00009ce80:  0000000000000000  0000000000000000 
+000000c00009ce90:  0000000000000000  0000000000000000 
+000000c00009cea0:  0000000000000000  0000000000000000 
+000000c00009ceb0:  0000000000000000  0000000000000000 
+000000c00009cec0:  0000000000000000  0000000000000000 
+000000c00009ced0:  0000000000000000  0000000000000000 
+000000c00009cee0:  0000000000000000  0000000000000000 
+000000c00009cef0:  0000000000000000  0000000000000000 
+000000c00009cf00:  0000000000000000  0000000000000000 
+000000c00009cf10:  0000000000000000  0000000000000000 
+000000c00009cf20:  0000000000000000  0000000000000000 
+000000c00009cf30:  0000000000000000  0000000000000000 
+000000c00009cf40:  0000000000000000  0000000000000000 
+000000c00009cf50:  0000000000000000  0000000000000000 
+000000c00009cf60:  0000000000000000  0000000000000000 
+000000c00009cf70: &lt;00007fffffffe000 &gt;0000000000000000 
+000000c00009cf80:  0000000000000000  000000c000042790 
+000000c00009cf90:  00000000004298fc &lt;runtime.main+524&gt;  000000c000080000 
+000000c00009cfa0:  0000000000000000  000000c000080000 
+000000c00009cfb0:  0000000000000000  0000000000000000 
+000000c00009cfc0:  0000000000000000  000000c000000180 
+000000c00009cfd0:  0000000000000000  0000000000451181 &lt;runtime.goexit+1&gt; 
+000000c00009cfe0:  0000000000000000  0000000000000000 
+000000c00009cff0:  0000000000000000  0000000000000000 
+fatal error: unknown caller pc
+
+runtime stack:
+runtime.throw(0x4ba8d3, 0x11)
+	/usr/local/go/src/runtime/panic.go:617 +0x72
+runtime.gentraceback(0xffffffffffffffff, 0xffffffffffffffff, 0x0, 0xc000000180, 0x0, 0x0, 0x7fffffff, 0x4bff80, 0x7ffea3d65f78, 0x0, ...)
+	/usr/local/go/src/runtime/traceback.go:275 +0x1cd1
+runtime.copystack(0xc000000180, 0x1000, 0x7fab4e901001)
+	/usr/local/go/src/runtime/stack.go:881 +0x25b
+runtime.newstack()
+	/usr/local/go/src/runtime/stack.go:1050 +0x2fd
+runtime.morestack()
+	/usr/local/go/src/runtime/asm_amd64.s:429 +0x8f
+
+goroutine 1 [copystack]:
+runtime: unexpected return pc for main.joke called from 0x7fffffffe000
+stack: frame={sp:0xc00009cf70, fp:0xc00009cf78} stack=[0xc00009c000,0xc00009d000)
+000000c00009ce70:  0000000000000000  0000000000000000 
+000000c00009ce80:  0000000000000000  0000000000000000 
+000000c00009ce90:  0000000000000000  0000000000000000 
+000000c00009cea0:  0000000000000000  0000000000000000 
+000000c00009ceb0:  0000000000000000  0000000000000000 
+000000c00009cec0:  0000000000000000  0000000000000000 
+000000c00009ced0:  0000000000000000  0000000000000000 
+000000c00009cee0:  0000000000000000  0000000000000000 
+000000c00009cef0:  0000000000000000  0000000000000000 
+000000c00009cf00:  0000000000000000  0000000000000000 
+000000c00009cf10:  0000000000000000  0000000000000000 
+000000c00009cf20:  0000000000000000  0000000000000000 
+000000c00009cf30:  0000000000000000  0000000000000000 
+000000c00009cf40:  0000000000000000  0000000000000000 
+000000c00009cf50:  0000000000000000  0000000000000000 
+000000c00009cf60:  0000000000000000  0000000000000000 
+000000c00009cf70: &lt;00007fffffffe000 &gt;0000000000000000 
+000000c00009cf80:  0000000000000000  000000c000042790 
+000000c00009cf90:  00000000004298fc &lt;runtime.main+524&gt;  000000c000080000 
+000000c00009cfa0:  0000000000000000  000000c000080000 
+000000c00009cfb0:  0000000000000000  0000000000000000 
+000000c00009cfc0:  0000000000000000  000000c000000180 
+000000c00009cfd0:  0000000000000000  0000000000451181 &lt;runtime.goexit+1&gt; 
+000000c00009cfe0:  0000000000000000  0000000000000000 
+000000c00009cff0:  0000000000000000  0000000000000000 
+main.joke(0x0)
+	/data/workspace/perf/stack/stack.go:5 +0x10e fp=0xc00009cf78 sp=0xc00009cf70 pc=0x48739e
+</code></pre></td></tr></table>
+</div>
+</div><p>这么简单的程序居然崩溃了，但我们只要不用funclatency，这个程序就不会崩溃。这个在生产环境中是无法接受的，也有悖于ebpf程序活体x光的名声，这相当于一个医生诊断一个病人，结果病人被诊断死了。废话少说，赶紧查查。根据go打印的内容，另外我们还知道问题出在go将旧栈复制到新栈的过程中：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">//文件在$GOROOT/src/runtime/stack.go
+
+func copystack(gp *g, newsize uintptr, sync bool) {
+...此处省略N行代码...
+	// Adjust pointers in the new stack.
+	gentraceback(^uintptr(0), ^uintptr(0), 0, gp, 0, nil, 0x7fffffff, adjustframe, noescape(unsafe.Pointer(&amp;adjinfo)), 0)
+...此处省略N行代码...
+}
+
+//文件在GOROOT/src/runtime/traceback.go
+func gentraceback(pc0, sp0, lr0 uintptr, gp *g, skip int, pcbuf *uintptr, max int, callback func(*stkframe, unsafe.Pointer) bool, v unsafe.Pointer, flags uint) int {
+...此处省略N行代码...
+			flr = findfunc(frame.lr)
+			if !flr.valid() {
+				// This happens if you get a profiling interrupt at just the wrong time.
+				// In that context it is okay to stop early.
+				// But if callback is set, we&#39;re doing a garbage collection and must
+				// get everything, so crash loudly.
+				doPrint := printing
+				if doPrint &amp;&amp; gp.m.incgo &amp;&amp; f.funcID == funcID_sigpanic {
+					// We can inject sigpanic
+					// calls directly into C code,
+					// in which case we&#39;ll see a C
+					// return PC. Don&#39;t complain.
+					doPrint = false
+				}
+				if callback != nil || doPrint {
+					print(&#34;runtime: unexpected return pc for &#34;, funcname(f), &#34; called from &#34;, hex(frame.lr), &#34;\n&#34;)
+					tracebackHexdump(gp.stack, &amp;frame, lrPtr)
+				}
+				if callback != nil {
+					throw(&#34;unknown caller pc&#34;)                          //错误在这里
+				}
+			}
+...此处省略N行代码...
+}
+</code></pre></td></tr></table>
+</div>
+</div><p><code>copystack</code>通过<code>gentraceback</code>调整栈变量的值，但是<code>findfunc</code>函数找不到uretprobe修改的返回地址代表的函数，也就是上面代码的<code>frame.lr</code>,go打印了这个地址<code>0x7fffffffe000</code>，因此崩溃。所以golang在发生扩展栈操作的时候，使用<code>funclatency</code>脚本测量函数延迟分布是有风险的。有没有更安全的方法，在这种情况下不会导致程序崩溃。</p>
+<p>经过一番查找，我们发现<a href="https://github.com/iovisor/bcc/issues/1320">issue1320</a>，这里有人提出了一种新的思路，给函数的<code>ret</code>指令设置uprobe来代替uretprobe。这里有两个问题：</p>
+<ol>
+<li>不能用于进行了尾调用优化的函数，但是go目前还没；</li>
+<li>需要在脚本中找到指令ret，这对使用了变长指令集的x86_64来说，需要一些功夫。</li>
+</ol>
+<p>第1个问题庆幸的是不存在，但是需要留意有这么个未来的可能的坑。第2个我们可以借助外部工具如gdb解决。</p>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">shandowc</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-07-15
+        <a href="/commit/7a1c4134564d27dbf2f6f6a9dbe84e21e2857e97" title="move to cloudinary and rebase">(7a1c413)</a>
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/bcc/">bcc</a>
+          <a href="/tags/go/">go</a>
+          <a href="/tags/funclatency/">funclatency</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/wxinlineplayer_intro/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">WXInlinePlayer: 整体代码介绍</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2020-07-15 12:12:35 \u002b0800 CST',
+        title: 'Gofunclatency',
+        clientID: '43ce905c941460b2c43d',
+        clientSecret: '7ec11b9eb1c5af5df4cf797f0d5221b4fd869aaa',
+        repo: 'shandowc.github.io',
+        owner: 'shandowc',
+        admin: ['shandowc'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zhxiaod3@gmail.com" class="iconfont icon-email" title="email"></a>
+  <a href="https://shandowc.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>shandowc</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

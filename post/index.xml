@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on shandowc&#39;s blog</title>
+    <link>https://shandowc.github.io/post/</link>
+    <description>Recent content in Posts on shandowc&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 08 Feb 2022 15:11:57 +0800</lastBuildDate><atom:link href="https://shandowc.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Orgmode与LaTeX写博客</title>
+      <link>https://shandowc.github.io/post/tikz/</link>
+      <pubDate>Tue, 08 Feb 2022 15:11:57 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/tikz/</guid>
+      <description>1基本配置 博客系统: hugo 1 2 3 4 (with-eval-after-load &amp;#39;ox (require &amp;#39;ox-hugo)) (setq org-hugo-export-with-section-numbers t) (setq org-latex-create-formula-image-program &amp;#39;imagemagick) 安装了ox-hugo之后，我们就可以用C-c C-e H h 2LaTeX 为了在LaTeX中写中文，我们需要在o</description>
+    </item>
+    
+    <item>
+      <title>Go垃圾回收</title>
+      <link>https://shandowc.github.io/post/go_gc/</link>
+      <pubDate>Sat, 16 Jan 2021 18:32:40 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/go_gc/</guid>
+      <description>&lt;p&gt;垃圾回收(Garbage Collection)是一种自动管理内存的机制。1959年由John McCarthy为Lisp创造。本节我们先从垃圾回收的概述说起。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Go内存分配原理</title>
+      <link>https://shandowc.github.io/post/go_mem/</link>
+      <pubDate>Thu, 14 Jan 2021 16:20:44 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/go_mem/</guid>
+      <description>&lt;p&gt;本文从Go源码角度探索内存分配原理。Go的内存分配是一个演进的过程，最初借鉴于tcmalloc，这里我们直接看go 1.15.6的源码，不再探究历史。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>html5_rtsp_player: 整体介绍</title>
+      <link>https://shandowc.github.io/post/html5rtspplayer_intro/</link>
+      <pubDate>Thu, 26 Nov 2020 10:00:59 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/html5rtspplayer_intro/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/Streamedian/html5_rtsp_player&#34;&gt;html5_rtsp_player&lt;/a&gt;是一个支持在网页上直接播放RTSP视频的js库。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: FLV解封装</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_demux/</link>
+      <pubDate>Wed, 25 Nov 2020 09:45:10 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_demux/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的FLV解封装部分。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: 音频播放</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_audio/</link>
+      <pubDate>Sun, 15 Nov 2020 14:28:18 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_audio/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的音频播放部分。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: js和cpp沟通的桥</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_glue/</link>
+      <pubDate>Sat, 14 Nov 2020 14:34:13 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_glue/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的js和cpp代码怎么沟通的？&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: loader部分</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_loader/</link>
+      <pubDate>Fri, 13 Nov 2020 14:23:52 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_loader/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的loader部分。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: 整体代码介绍</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_intro/</link>
+      <pubDate>Thu, 12 Nov 2020 09:52:23 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_intro/</guid>
+      <description>&lt;p&gt;我们来阅读一下&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的源码，本来像一篇博文写完，但是发现这样不好看也不好写，一口吃不成一个大胖子。这篇先讲一下WXInlinePlayer的整体代码介绍。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Gofunclatency</title>
+      <link>https://shandowc.github.io/post/gofunclatency/</link>
+      <pubDate>Wed, 15 Jul 2020 12:12:35 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/gofunclatency/</guid>
+      <description>&lt;p&gt;本文介绍怎么实现一个可用的gofunclatency脚本。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>bcc on shandowc&#39;s blog</title>
+    <link>https://shandowc.github.io/tags/bcc/</link>
+    <description>Recent content in bcc on shandowc&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 15 Jul 2020 12:12:35 +0800</lastBuildDate><atom:link href="https://shandowc.github.io/tags/bcc/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Gofunclatency</title>
+      <link>https://shandowc.github.io/post/gofunclatency/</link>
+      <pubDate>Wed, 15 Jul 2020 12:12:35 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/gofunclatency/</guid>
+      <description>&lt;p&gt;本文介绍怎么实现一个可用的gofunclatency脚本。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

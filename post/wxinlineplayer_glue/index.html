@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>WXInlinePlayer: js和cpp沟通的桥 - shandowc&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="shandowc" /><meta name="description" content="WXInlinePlayer的js和cpp代码怎么沟通的？
+" /><meta name="keywords" content="shandowc" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.92.1 with theme even" />
+
+
+<link rel="canonical" href="https://shandowc.github.io/post/wxinlineplayer_glue/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="WXInlinePlayer: js和cpp沟通的桥" />
+<meta property="og:description" content="WXInlinePlayer的js和cpp代码怎么沟通的？" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shandowc.github.io/post/wxinlineplayer_glue/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-11-14T14:34:13+08:00" />
+<meta property="article:modified_time" content="2020-07-15T12:21:51+08:00" />
+
+<meta itemprop="name" content="WXInlinePlayer: js和cpp沟通的桥">
+<meta itemprop="description" content="WXInlinePlayer的js和cpp代码怎么沟通的？"><meta itemprop="datePublished" content="2020-11-14T14:34:13+08:00" />
+<meta itemprop="dateModified" content="2020-07-15T12:21:51+08:00" />
+<meta itemprop="wordCount" content="2302">
+<meta itemprop="keywords" content="源码阅读,前端,wasm,播放器,WXInlinePlayer," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="WXInlinePlayer: js和cpp沟通的桥"/>
+<meta name="twitter:description" content="WXInlinePlayer的js和cpp代码怎么沟通的？"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">shandowc&#39;s blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">shandowc&#39;s blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">WXInlinePlayer: js和cpp沟通的桥</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-11-14 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><a href="https://github.com/ErosZy/WXInlinePlayer">WXInlinePlayer</a>的js和cpp代码怎么沟通的？</p>
+<p>先来看看<code>lib/codec/build.sh</code>, 这里编译了解码库, 我们挑一个解码库的编译过程看下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">node ../tool/compile.js wasm h265         <span class="c1"># 根据条件生成CMakeLists.txt和config.h</span>
+emcmake cmake ..
+emmake make -j <span class="m">4</span>
+mv ../bin/prod.js ../bin/h265.wasm.js     <span class="c1"># 将生成的js文件重命名</span>
+
+node ../tool/compile.js asm h265          <span class="c1"># 根据条件生成CMakeLists.txt和config.h</span>
+emcmake cmake ..
+emmake make -j <span class="m">4</span>
+mv ../bin/prod.js ../bin/h265.asm.js      <span class="c1"># 将生成的js文件重命名</span>
+
+node ../tool/compile.js                   <span class="c1"># 重置CMakeLists.txt和config.h</span>
+node ../tool/wrapper.js ../bin/h265.wasm.js h265.wasm <span class="c1"># 通过模板,给各个编码器套上一些公用代码,并压缩js</span>
+node ../tool/wrapper.js ../bin/h265.asm.js h265.asm   <span class="c1"># 通过模板,给各个编码器套上一些公用代码,并压缩js</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后我们看下<code>lib/tool/compile.js</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="kr">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">filepath</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="s1">&#39;../CMakeLists.txt&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">confpath</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="s1">&#39;../src/config.h&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">cmds</span> <span class="o">=</span> <span class="nx">fs</span>
+  <span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">filepath</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;UTF8&#39;</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="sr">/\r?\n/g</span><span class="p">);</span>
+
+<span class="p">[</span><span class="s1">&#39;wasm&#39;</span><span class="p">,</span> <span class="s1">&#39;asm&#39;</span><span class="p">].</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">v</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">index</span> <span class="o">=</span> <span class="nx">cmds</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="sb">`#&lt;-----</span><span class="si">${</span><span class="nx">v</span><span class="si">}</span><span class="sb">-----&gt;`</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">index</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">cmds</span><span class="p">[</span><span class="nx">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">].</span><span class="nx">indexOf</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">cmds</span><span class="p">[</span><span class="nx">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="sb">`#</span><span class="si">${</span><span class="nx">cmds</span><span class="p">[</span><span class="nx">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>    <span class="c1">// 同时注释掉wasm和asm.js两种解码器
+</span><span class="c1"></span>    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="kd">let</span> <span class="nx">type</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="kd">let</span> <span class="nx">isBaseline</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;baseline&#39;</span><span class="p">;</span>
+<span class="kd">let</span> <span class="nx">isH265</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;h265&#39;</span><span class="p">;</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span><span class="p">(</span><span class="nx">confpath</span><span class="p">,</span> <span class="sb">`
+</span><span class="sb">#ifndef CODEC_CONFIG_H
+</span><span class="sb">#define CODEC_CONFIG_H
+</span><span class="sb">
+</span><span class="sb"></span><span class="si">${</span><span class="nx">isH265</span> <span class="o">?</span> <span class="s1">&#39;&#39;</span> <span class="o">:</span> <span class="s1">&#39;//&#39;</span><span class="si">}</span><span class="sb">#define USE_OPEN_H265
+</span><span class="sb"></span><span class="si">${</span><span class="nx">isBaseline</span> <span class="o">?</span> <span class="s1">&#39;//&#39;</span> <span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="si">}</span><span class="sb">#define USE_OPEN_H264
+</span><span class="sb">
+</span><span class="sb">#endif //CODEC_CONFIG_H
+</span><span class="sb">`</span><span class="p">);</span>                                               <span class="c1">// 根据配置,确定本次编译的解码器支不支持H264和H265
+</span><span class="c1"></span>
+<span class="nx">index</span> <span class="o">=</span> <span class="nx">cmds</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="sb">`#&lt;-----</span><span class="si">${</span><span class="nx">type</span><span class="si">}</span><span class="sb">-----&gt;`</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="nx">index</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">cmds</span><span class="p">[</span><span class="nx">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nx">cmds</span><span class="p">[</span><span class="nx">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">].</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">);</span> <span class="c1">// 本次编译只遍wasm或者asm.js目标文件, 把一开始加的注释取消掉
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span><span class="p">(</span><span class="nx">filepath</span><span class="p">,</span> <span class="nx">cmds</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;\n&#39;</span><span class="p">));</span>          <span class="c1">// 写回CMakeLists.txt
+</span></code></pre></td></tr></table>
+</div>
+</div><p>上面提到的注释内容是下面两句</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="c">#&lt;-----wasm-----&gt;
+</span><span class="c"></span><span class="nb">set</span><span class="p">(</span><span class="s">EM_CONFIG_PARAM</span> <span class="s2">&#34;-O3 -s ENVIRONMENT=\&#34;</span><span class="s">web,worker\</span><span class="s2">&#34; -s SINGLE_FILE=1 -s WASM=1 -s FETCH=0 -s DISABLE_EXCEPTION_CATCHING=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s NO_EXIT_RUNTIME=0 -s FILESYSTEM=0 -s INVOKE_RUN=0 -s ASSERTIONS=1 -s TOTAL_MEMORY=16777216 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS=\&#34;</span><span class="s">[&#39;_codecInit&#39;,</span> <span class="s">&#39;_codecSetBridgeName&#39;,</span> <span class="s">&#39;_codecDecode&#39;,</span> <span class="s">&#39;_codecSetVideoBuffer&#39;,</span> <span class="s">&#39;_codecSetAudioBuffer&#39;,</span> <span class="s">&#39;_codecTry2Seek&#39;,</span> <span class="s">&#39;_codecFree&#39;]\</span><span class="s2">&#34;&#34;</span><span class="p">)</span><span class="err">
+</span><span class="err"></span><span class="c">#&lt;-----asm-----&gt;
+</span><span class="c"></span><span class="nb">set</span><span class="p">(</span><span class="s">EM_CONFIG_PARAM</span> <span class="s2">&#34;-O3 -s ENVIRONMENT=\&#34;</span><span class="s">web,worker\</span><span class="s2">&#34; -s SINGLE_FILE=1 -s WASM=0 -s FETCH=0 -s DISABLE_EXCEPTION_CATCHING=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s NO_EXIT_RUNTIME=0 -s FILESYSTEM=0 -s TOTAL_MEMORY=16777216 -s ALLOW_MEMORY_GROWTH=1 -s INVOKE_RUN=0 -s LEGACY_VM_SUPPORT=1 -s MEM_INIT_METHOD=0 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -s ASSERTIONS=1 -s EXPORTED_FUNCTIONS=\&#34;</span><span class="s">[&#39;_codecInit&#39;,</span> <span class="s">&#39;_codecSetBridgeName&#39;,</span> <span class="s">&#39;_codecDecode&#39;,</span> <span class="s">&#39;_codecSetVideoBuffer&#39;,</span> <span class="s">&#39;_codecSetAudioBuffer&#39;,</span> <span class="s">&#39;_codecTry2Seek&#39;,</span> <span class="s">&#39;_codecFree&#39;]\</span><span class="s2">&#34;&#34;</span><span class="p">)</span><span class="err">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>参考<code>lib/codec/src/main.cpp</code>，我们看到，c部分的代码暴露了如下方法</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 初始化编码器, 初始化全局变量
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">codecInit</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<span class="c1">// 设置cpp代码回调目标,后面有讲解
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">codecSetBridgeName</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">bridgeName</span><span class="p">);</span>
+<span class="c1">// 设置音频解封装数据存储块
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">codecSetAudioBuffer</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">buffer</span><span class="p">);</span>
+<span class="c1">// 设置视频帧数据存储块
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">codecSetVideoBuffer</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">buffer</span><span class="p">);</span>
+<span class="c1">// 解封装/解码一段数据
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">codecDecode</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">bytes</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">length</span><span class="p">);</span>
+<span class="c1">// 未用上, 暂不讨论
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">codecTry2Seek</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">buffer</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">length</span><span class="p">);</span>
+<span class="c1">// 释放解码器, 销毁全局变量
+</span><span class="c1"></span><span class="kt">void</span> <span class="nf">codecFree</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>而<code>wrapper.js</code>的内容则是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="kr">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">argv</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">;</span>
+<span class="kr">const</span> <span class="nx">UglifyJS</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;uglify-js&#39;</span><span class="p">);</span>
+
+<span class="kr">const</span> <span class="nx">GLUE_PATH</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="s1">&#39;../combine/glue.js&#39;</span><span class="p">);</span>   <span class="c1">//胶水代码
+</span><span class="c1"></span><span class="kr">const</span> <span class="nx">CODEC_PATH</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>               <span class="c1">//上面编译出来的代码
+</span><span class="c1"></span>
+<span class="kr">const</span> <span class="nx">glueCodeStr</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">GLUE_PATH</span><span class="p">).</span><span class="nx">toString</span><span class="p">();</span>
+<span class="kr">const</span> <span class="nx">codecCodeStr</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">CODEC_PATH</span><span class="p">).</span><span class="nx">toString</span><span class="p">();</span>
+
+<span class="kd">let</span> <span class="nx">content</span> <span class="o">=</span> <span class="sb">`此处先省略代码`</span>
+
+<span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span><span class="p">(</span>
+  <span class="nx">path</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="nx">__dirname</span><span class="p">,</span> <span class="sb">`../combine/prod.</span><span class="si">${</span><span class="nx">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="sb">.combine.js`</span><span class="p">),</span>
+  <span class="nx">UglifyJS</span><span class="p">.</span><span class="nx">minify</span><span class="p">(</span><span class="nx">content</span><span class="p">).</span><span class="nx">code</span>                                 <span class="c1">//压缩代码体积
+</span><span class="c1"></span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>从上述简化代码看出，主要是将胶水代码和上面编译的代码拼接起来，我们看下<code>content</code>里面的内容，看下里面干了些啥</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">WORKER_ENABLED</span> <span class="o">=</span> <span class="o">!!</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">URL</span> <span class="o">&amp;&amp;</span> <span class="nb">window</span><span class="p">.</span><span class="nx">Blob</span> <span class="o">&amp;&amp;</span> <span class="nb">window</span><span class="p">.</span><span class="nx">Worker</span><span class="p">);</span>
+
+<span class="kd">function</span> <span class="nx">__GLUE_EXEC__</span><span class="p">(</span><span class="nx">Module</span><span class="p">){</span>
+    <span class="nx">$</span><span class="p">{</span><span class="nx">glueCodeStr</span><span class="p">};</span>                     <span class="c1">// 把胶水代码封到函数中
+</span><span class="c1"></span><span class="p">};</span>
+
+<span class="kd">function</span> <span class="nx">__CODEC_EXEC__</span><span class="p">(</span><span class="nx">Module</span><span class="p">){</span>
+    <span class="nx">$</span><span class="p">{</span><span class="nx">codecCodeStr</span><span class="p">}</span>                     <span class="c1">// 把解码器代码放到函数中
+</span><span class="c1"></span><span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">H264Codec</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">WORKER_ENABLED</span><span class="p">){</span>
+  <span class="c1">// 限于篇幅，大部分浏览器都是支持web worker的，不介绍这部分的代码
+</span><span class="c1"></span><span class="p">}</span><span class="k">else</span><span class="p">{</span>
+    <span class="nx">H264Codec</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="kd">var</span> <span class="nx">_me</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">destroied</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="kd">var</span> <span class="nx">glueCodeStr</span> <span class="o">=</span> <span class="nx">__GLUE_EXEC__</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+        <span class="kd">var</span> <span class="nx">codecCodeStr</span> <span class="o">=</span> <span class="nx">__CODEC_EXEC__</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+        <span class="kd">var</span> <span class="nx">blob</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Blob</span><span class="p">([[</span>
+            <span class="s1">&#39;var Module = {};&#39;</span><span class="p">,</span>
+            <span class="nx">glueCodeStr</span><span class="p">,</span>
+            <span class="nx">codecCodeStr</span><span class="p">,</span>
+            <span class="s1">&#39;;__GLUE_EXEC__(Module);__CODEC_EXEC__(Module);&#39;</span>
+        <span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)],</span> <span class="p">{</span><span class="nx">type</span><span class="o">:</span><span class="s1">&#39;text/javascript&#39;</span><span class="p">});</span>            <span class="c1">// 把胶水代码和解码器代码拼接起来
+</span><span class="c1"></span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="nx">URL</span><span class="p">.</span><span class="nx">createObjectURL</span><span class="p">(</span><span class="nx">blob</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">worker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Worker</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>                 <span class="c1">// 拼接起来的代码在新worker中执行
+</span><span class="c1"></span>        <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">msg</span><span class="p">){</span>              <span class="c1">// 收到胶水代码返回来的消息的处理方式
+</span><span class="c1"></span>            <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">_me</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">==</span> <span class="s2">&#34;function&#34;</span><span class="p">){</span>
+                <span class="nx">_me</span><span class="p">.</span><span class="nx">onmessage</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>               <span class="c1">// 收到解码器的事件，如果设置了onmessage函数，透传到上层，processor通过这种方式拿到解码器事件
+</span><span class="c1"></span>                <span class="k">if</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span> <span class="o">==</span> <span class="s1">&#39;destroy&#39;</span> <span class="o">&amp;&amp;</span> <span class="k">typeof</span> <span class="nx">_me</span><span class="p">.</span><span class="nx">onterminate</span> <span class="o">==</span> <span class="s1">&#39;function&#39;</span><span class="p">){</span>
+                    <span class="nx">_me</span><span class="p">.</span><span class="nx">onterminate</span><span class="p">();</span>
+                    <span class="nx">_me</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">terminate</span><span class="p">();</span>
+                    <span class="nx">_me</span><span class="p">.</span><span class="nx">worker</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">onterminate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>
+            
+        <span class="p">}</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">onterminate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+    <span class="p">};</span>
+
+    <span class="nx">H264Codec</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">decode</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">buffer</span><span class="p">){</span>    <span class="c1">// 对外api，解码一段数据
+</span><span class="c1"></span>        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">){</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+                <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;decode&#39;</span><span class="p">,</span>
+                <span class="nx">buffer</span><span class="o">:</span> <span class="nx">buffer</span><span class="p">,</span>
+            <span class="p">});</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nx">H264Codec</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">destroy</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){</span>         <span class="c1">// 对外api，销毁解码器
+</span><span class="c1"></span>        <span class="k">this</span><span class="p">.</span><span class="nx">destroied</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">){</span>
+            <span class="nb">window</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">revokeObjectURL</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span><span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;destroy&#39;</span><span class="p">});</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">window</span><span class="p">.</span><span class="nx">H264Codec</span> <span class="o">=</span> <span class="nx">H264Codec</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>接下来, 是时候看胶水代码<code>glue.js</code>怎么写的了, 先看<code>glue.js</code>的第一部分, 胶水代码接收外部请求, 然后处理.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="nx">Module</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+  <span class="k">switch</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="s2">&#34;decode&#34;</span><span class="o">:</span> <span class="p">{</span>                            <span class="c1">// 收到外部需要解码一段数据的请求
+</span><span class="c1"></span>      <span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">buffer</span><span class="p">);</span>
+      <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">Module</span><span class="p">.</span><span class="nx">_malloc</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span> <span class="c1">// 在HEAP上分配空间
+</span><span class="c1"></span>      <span class="nx">Module</span><span class="p">.</span><span class="nx">HEAPU8</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+
+      <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+      <span class="nx">Module</span><span class="p">.</span><span class="nx">audioTimestamps</span> <span class="o">=</span> <span class="p">[];</span>
+      <span class="nx">Module</span><span class="p">.</span><span class="nx">videoTimestamps</span> <span class="o">=</span> <span class="p">[];</span>
+      <span class="nx">Module</span><span class="p">.</span><span class="nx">_codecDecode</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span> <span class="c1">// 调用emscripten编译出来的代码解码
+</span><span class="c1"></span>
+      <span class="kd">var</span> <span class="nx">ats</span> <span class="o">=</span> <span class="nx">Module</span><span class="p">.</span><span class="nx">audioTimestamps</span><span class="p">;</span>
+      <span class="kd">var</span> <span class="nx">vts</span> <span class="o">=</span> <span class="nx">Module</span><span class="p">.</span><span class="nx">videoTimestamps</span><span class="p">;</span>
+      <span class="nx">Module</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>                      <span class="c1">// 返回解码耗时, 以及本段数据可播放的长度
+</span><span class="c1"></span>        <span class="nx">type</span><span class="o">:</span> <span class="s2">&#34;decode&#34;</span><span class="p">,</span>
+        <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">consume</span><span class="o">:</span> <span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()</span> <span class="o">-</span> <span class="nx">now</span><span class="p">,</span>
+          <span class="nx">duration</span><span class="o">:</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span>
+            <span class="nx">ats</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="nx">ats</span><span class="p">[</span><span class="nx">ats</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nx">ats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="nx">vts</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="nx">vts</span><span class="p">[</span><span class="nx">vts</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nx">vts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span>
+          <span class="p">)</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+
+      <span class="nx">Module</span><span class="p">.</span><span class="nx">_free</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="s2">&#34;destroy&#34;</span><span class="o">:</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">Module</span><span class="p">.</span><span class="nx">audioBuffer</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">Module</span><span class="p">.</span><span class="nx">_free</span><span class="p">(</span><span class="nx">Module</span><span class="p">.</span><span class="nx">audioBuffer</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">Module</span><span class="p">.</span><span class="nx">videoBuffer</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">Module</span><span class="p">.</span><span class="nx">_free</span><span class="p">(</span><span class="nx">Module</span><span class="p">.</span><span class="nx">videoBuffer</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="nx">Module</span><span class="p">.</span><span class="nx">_codecFree</span><span class="p">();</span>
+      <span class="nx">Module</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="o">:</span> <span class="s2">&#34;destroy&#34;</span> <span class="p">});</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nx">isWorker</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">self</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="nx">Module</span><span class="p">.</span><span class="nx">onmessage</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其实就是web worker的经典套路, <code>onmessage</code>接收指令, 执行代码, 然后<code>postmessage</code>返回结果, 整个过程在子线程中完成, 不占用主线程时间和资源. 接下来, 需要关注的是<code>Module</code>这个对象的赋值:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">T</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">audioTimestamps</span><span class="o">:</span> <span class="p">[],</span>
+  <span class="nx">videoTimestamps</span><span class="o">:</span> <span class="p">[],</span>
+  <span class="nx">audioBufferSize</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nx">videoBufferSize</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nx">audioBuffer</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nx">videoBuffer</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="nx">postMessage</span><span class="o">:</span> <span class="nx">isWorker</span> <span class="o">?</span> <span class="nx">postMessage</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span> <span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{},</span> 
+  <span class="nx">onRuntimeInitialized</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>                    <span class="c1">// wasm加载完毕, 执行一些操作
+</span><span class="c1"></span>    <span class="nx">Module</span><span class="p">.</span><span class="nx">_codecInit</span><span class="p">();</span>                                <span class="c1">// 调用cpp代码的codecInit方法初始化解码器
+</span><span class="c1"></span>    <span class="kd">var</span> <span class="nx">callbackStr</span> <span class="o">=</span> <span class="nx">bridgeName</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="p">);</span>
+    <span class="nx">callbackStr</span> <span class="o">=</span> <span class="nx">callbackStr</span>
+      <span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">v</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+      <span class="p">})</span>
+      <span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>                                       <span class="c1">// 这些代码成迷,为何不通过allocateUTF8传字符串进去
+</span><span class="c1"></span>
+    <span class="kd">var</span> <span class="nx">callbackStrData</span> <span class="o">=</span> <span class="nx">Module</span><span class="p">.</span><span class="nx">_malloc</span><span class="p">(</span><span class="nx">callbackStr</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="nx">Module</span><span class="p">.</span><span class="nx">HEAPU8</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">callbackStr</span><span class="p">,</span> <span class="nx">callbackStrData</span><span class="p">);</span>
+    <span class="nx">Module</span><span class="p">.</span><span class="nx">_codecSetBridgeName</span><span class="p">(</span><span class="nx">callbackStrData</span><span class="p">);</span>        <span class="c1">// 重点, 先留意, 主要是设置透音视频等数据给上层的方法
+</span><span class="c1"></span>
+    <span class="nx">Module</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="o">:</span> <span class="s2">&#34;ready&#34;</span> <span class="p">});</span>              <span class="c1">// 告诉上层, 解码器准备好了
+</span><span class="c1"></span>  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="nx">Module</span> <span class="o">=</span> <span class="nx">Module</span> <span class="o">||</span> <span class="p">{};</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">key</span> <span class="k">in</span> <span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">T</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">))</span> <span class="p">{</span>      <span class="c1">// 只赋值T自己拥有的属性方法, 不管继承属性
+</span><span class="c1"></span>    <span class="nx">Module</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">T</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这种赋值的技巧似乎也不错, 这样就不用<code>Model.xxx</code>这样给一个个属性赋值了, 可能这样看着更整洁.</p>
+<p>最后, 胶水代码最重要的一部分, 视频和音频数据是怎么透到上层的?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="kd">var</span> <span class="nx">isWorker</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">importScripts</span> <span class="o">==</span> <span class="s2">&#34;function&#34;</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">bridgeName</span> <span class="o">=</span> <span class="s2">&#34;__CODE_BRIDGE__&#34;</span> <span class="o">+</span> <span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>         <span class="c1">// 刚才提到的codecSetBridgeName, 入参就是这个
+</span><span class="c1"></span><span class="p">(</span><span class="nx">isWorker</span> <span class="o">?</span> <span class="nx">self</span> <span class="o">:</span> <span class="nb">window</span><span class="p">)[</span><span class="nx">bridgeName</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">onHeader</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">header</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">Module</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="o">:</span> <span class="s2">&#34;header&#34;</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span> <span class="nx">header</span> <span class="p">});</span>
+  <span class="p">},</span>
+  <span class="c1">// 省略其它方法
+</span><span class="c1"></span><span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后我们在<code>lib/codec/src/factor/codec_factor.cpp</code>中找到</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="n">CodecFactor</span><span class="o">::</span><span class="n">recvHeaderValue</span><span class="p">(</span><span class="n">HeaderValue</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef __EMSCRIPTEN__
+</span><span class="cp"></span>  <span class="n">EM_ASM</span><span class="p">({</span>
+    <span class="n">var</span> <span class="n">isWorker</span> <span class="o">=</span> <span class="n">typeof</span> <span class="n">importScripts</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">;</span>
+    <span class="n">var</span> <span class="n">bridge</span> <span class="o">=</span> <span class="p">(</span><span class="n">isWorker</span> <span class="o">?</span> <span class="nl">self</span> <span class="p">:</span> <span class="n">window</span><span class="p">)[</span><span class="n">UTF8ToString</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)];</span>    <span class="c1">// 获得当前的bridge, 等于是解码器的桥, 桥接模式?
+</span><span class="c1"></span>    <span class="k">if</span><span class="p">(</span><span class="n">bridge</span> <span class="o">&amp;&amp;</span> <span class="n">typeof</span> <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onHeader&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">){</span>        <span class="c1">// 调用这个方法
+</span><span class="c1"></span>      <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onHeader&#34;</span><span class="p">]({</span>
+        <span class="s">&#34;hasAudio&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s">&#34;hasVideo&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">2</span><span class="p">,</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+  <span class="p">},</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">bridgeName</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">value</span><span class="p">.</span><span class="n">hasAudio</span><span class="p">,</span> <span class="n">value</span><span class="p">.</span><span class="n">hasVideo</span><span class="p">);</span>
+<span class="cp">#endif
+</span><span class="cp"></span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">shandowc</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-07-15
+        <a href="/commit/7a1c4134564d27dbf2f6f6a9dbe84e21e2857e97" title="move to cloudinary and rebase">(7a1c413)</a>
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+          <a href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+          <a href="/tags/wasm/">wasm</a>
+          <a href="/tags/%E6%92%AD%E6%94%BE%E5%99%A8/">播放器</a>
+          <a href="/tags/wxinlineplayer/">WXInlinePlayer</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/wxinlineplayer_audio/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">WXInlinePlayer: 音频播放</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/wxinlineplayer_loader/">
+            <span class="next-text nav-default">WXInlinePlayer: loader部分</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2020-11-14 14:34:13 \u002b0800 CST',
+        title: 'WXInlinePlayer: js和cpp沟通的桥',
+        clientID: '43ce905c941460b2c43d',
+        clientSecret: '7ec11b9eb1c5af5df4cf797f0d5221b4fd869aaa',
+        repo: 'shandowc.github.io',
+        owner: 'shandowc',
+        admin: ['shandowc'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zhxiaod3@gmail.com" class="iconfont icon-email" title="email"></a>
+  <a href="https://shandowc.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>shandowc</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

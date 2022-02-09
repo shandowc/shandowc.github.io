@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>WXInlinePlayer: FLV解封装 - shandowc&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="shandowc" /><meta name="description" content="WXInlinePlayer的FLV解封装部分。
+" /><meta name="keywords" content="shandowc" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.92.1 with theme even" />
+
+
+<link rel="canonical" href="https://shandowc.github.io/post/wxinlineplayer_demux/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="WXInlinePlayer: FLV解封装" />
+<meta property="og:description" content="WXInlinePlayer的FLV解封装部分。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shandowc.github.io/post/wxinlineplayer_demux/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-11-25T09:45:10+08:00" />
+<meta property="article:modified_time" content="2020-07-15T12:21:51+08:00" />
+
+<meta itemprop="name" content="WXInlinePlayer: FLV解封装">
+<meta itemprop="description" content="WXInlinePlayer的FLV解封装部分。"><meta itemprop="datePublished" content="2020-11-25T09:45:10+08:00" />
+<meta itemprop="dateModified" content="2020-07-15T12:21:51+08:00" />
+<meta itemprop="wordCount" content="3596">
+<meta itemprop="keywords" content="源码阅读,前端,wasm,播放器,WXInlinePlayer," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="WXInlinePlayer: FLV解封装"/>
+<meta name="twitter:description" content="WXInlinePlayer的FLV解封装部分。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">shandowc&#39;s blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">shandowc&#39;s blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">WXInlinePlayer: FLV解封装</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-11-25 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents"></nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><a href="https://github.com/ErosZy/WXInlinePlayer">WXInlinePlayer</a>的FLV解封装部分。</p>
+<p>我们从外部调用的<code>codecDecode</code>函数开始介绍起, 看<code>lib/codec/src/main.cpp</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="nf">codecDecode</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">bytes</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">codec</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>             <span class="c1">// codec是个全局变量
+</span><span class="c1"></span>    <span class="n">codec</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span> <span class="n">length</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后看<code>lib/codec/src/codec/codec.cpp</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="n">Codec</span><span class="o">::</span><span class="n">decode</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">bytes</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">byteLen</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span> <span class="n">byteLen</span><span class="p">);</span>
+  <span class="n">_decoder</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>再进入<code>lib/codec/src/demuxer/decoder.cpp</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="n">Decoder</span><span class="o">::</span><span class="n">decode</span><span class="p">(</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">_buffer</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">_buffer</span> <span class="o">+</span> <span class="o">*</span><span class="n">buffer</span><span class="p">);</span>      <span class="c1">// 下划线的是成员变量, 拼接buffer
+</span><span class="c1"></span>  <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">_state</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">case</span> <span class="n">Header</span><span class="o">::</span><span class="nl">STATE</span><span class="p">:</span> <span class="p">{</span>                               <span class="c1">// 如果还没拿到文件头信息
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">_buffer</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">Header</span><span class="o">::</span><span class="n">MIN_LENGTH</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// 长度不足
+</span><span class="c1"></span>          <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">HeaderValue</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_header</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="n">_buffer</span><span class="p">);</span>     <span class="c1">// 解析FLV文件头
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">empty</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">_factor</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">_factor</span><span class="o">-&gt;</span><span class="n">recvHeaderValue</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>                <span class="c1">// 通知上层, 收到header信息了
+</span><span class="c1"></span>        <span class="p">}</span>
+        <span class="n">_buffer</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="n">buffer</span><span class="p">;</span>                           <span class="c1">// 将_buffer设置为解析完header后剩下的数据
+</span><span class="c1"></span>        <span class="n">_state</span> <span class="o">=</span> <span class="n">Body</span><span class="o">::</span><span class="n">STATE</span><span class="p">;</span>                             <span class="c1">// 读完header, 就等body的数据了
+</span><span class="c1"></span>        <span class="k">break</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">case</span> <span class="n">Body</span><span class="o">::</span><span class="nl">STATE</span><span class="p">:</span> <span class="p">{</span>                                 <span class="c1">// header解析完, 就一直在解析body数据
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">_buffer</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">Body</span><span class="o">::</span><span class="n">MIN_LENGTH</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">BodyValue</span><span class="o">&gt;</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_body</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="n">_buffer</span><span class="p">);</span> <span class="c1">// 解析body中的一个个tag
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">_factor</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// 如果是媒体信息, 透传mediaInfo;如果是音频, 上报audio消息, 传出ADTS; 如果是视频, 解码后, 上报video消息
+</span><span class="c1"></span>          <span class="n">_factor</span><span class="o">-&gt;</span><span class="n">recvBodyValue</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">_buffer</span> <span class="o">=</span> <span class="n">value</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">default</span><span class="o">:</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>FLV文件分两个部分, header和body, 大体如下:</p>
+<p><img src="https://res.cloudinary.com/dsvi3kt2y/image/upload/v1639532021/blog/flv_ssrv4c.png" alt=""></p>
+<p>关于FLV文件格式, 建议可以对着规范一起看: <a href="https://www.adobe.com/content/dam/acom/en/devnet/flv/video_file_format_spec_v10.pdf">flv规范传送门</a>.</p>
+<p>理解上图之后, header部分代码比较简单, 这里不看了, 直接看body部分<code>lib/codec/src/demuxer/body.cpp</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">BodyValue</span><span class="o">&gt;</span> <span class="n">Body</span><span class="o">::</span><span class="n">decode</span><span class="p">(</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Tag</span> <span class="n">tag</span><span class="p">;</span>
+  <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">BodyValue</span><span class="o">&gt;</span> <span class="n">value</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BodyValue</span><span class="o">&gt;</span><span class="p">();</span>
+
+  <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">Body</span><span class="o">::</span><span class="n">MIN_LENGTH</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">break</span><span class="p">;</span>                                <span class="c1">// 连previousTagSize的长度都不足, 直接退出
+</span><span class="c1"></span>    <span class="p">}</span>
+
+    <span class="kt">uint32_t</span> <span class="n">size</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint32_be</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// 读取了previousTagSize, 但是啥都没干...废代码
+</span><span class="c1"></span>    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">body</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span> <span class="c1">// 去掉previousTagSize继续解析
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">body</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">Tag</span><span class="o">::</span><span class="n">MIN_LENGTH</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">break</span><span class="p">;</span>                                <span class="c1">// 数据大小不足tag内其它字段的length总和, 也就是11
+</span><span class="c1"></span>    <span class="p">}</span>
+
+    <span class="n">TagValue</span> <span class="n">retValue</span> <span class="o">=</span> <span class="n">tag</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">retValue</span><span class="p">.</span><span class="n">unvalidate</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">retValue</span><span class="p">.</span><span class="n">buffer</span><span class="p">;</span>               <span class="c1">// 赋值为剩下的未解析的tag数据
+</span><span class="c1"></span>    <span class="n">retValue</span><span class="p">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">value</span><span class="o">-&gt;</span><span class="n">tags</span><span class="o">-&gt;</span><span class="n">push_back</span><span class="p">(</span><span class="n">retValue</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">value</span><span class="o">-&gt;</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">buffer</span><span class="p">;</span>           <span class="c1">// 赋值为剩下的未解析的tag数据
+</span><span class="c1"></span>  <span class="k">return</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后看tag怎么解析的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="nx">TagValue</span> <span class="nx">Tag</span><span class="o">::</span><span class="nx">decode</span><span class="p">(</span><span class="nx">shared_ptr</span><span class="o">&lt;</span><span class="nx">Buffer</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">uint32_t</span> <span class="nx">size</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">_type</span> <span class="o">=</span> <span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>            <span class="c1">// 解析tagType
+</span><span class="c1"></span>  <span class="nx">_size</span> <span class="o">=</span> <span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">read_uint24_be</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>        <span class="c1">// 解析dataSize
+</span><span class="c1"></span>
+  <span class="nx">uint32_t</span> <span class="nx">ts0</span> <span class="o">=</span> <span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">read_uint24_be</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="c1">// 时间戳, 大端序
+</span><span class="c1"></span>  <span class="nx">uint32_t</span> <span class="nx">ts1</span> <span class="o">=</span> <span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">read_uint8</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>     <span class="c1">// 扩展时间戳, 高8位
+</span><span class="c1"></span>  <span class="nx">_timestamp</span> <span class="o">=</span> <span class="p">(</span><span class="nx">ts1</span> <span class="o">&lt;&lt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">|</span> <span class="nx">ts0</span><span class="p">;</span>           <span class="c1">// 组成32位的时间戳, 单位毫秒, 第一个tag的时间戳是0
+</span><span class="c1"></span>
+  <span class="nx">_streamId</span> <span class="o">=</span> <span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">read_uint24_be</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">_streamId</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>                     <span class="c1">// 流ID必须为0
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">TagValue</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">get_length</span><span class="p">()</span> <span class="o">&lt;</span> <span class="nx">Tag</span><span class="o">::</span><span class="nx">MIN_LENGTH</span> <span class="o">+</span> <span class="nx">_size</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">TagValue</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>                  <span class="c1">// 本次数据不足, 下次数据够了再来吧
+</span><span class="c1"></span>  <span class="p">}</span>
+
+  <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">make_shared</span><span class="o">&lt;</span><span class="nx">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">slice</span><span class="p">(</span><span class="nx">Tag</span><span class="o">::</span><span class="nx">MIN_LENGTH</span><span class="p">));</span>
+
+  <span class="nx">TagValue</span> <span class="nx">value</span><span class="p">;</span>
+  <span class="k">switch</span> <span class="p">(</span><span class="nx">_type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nx">AudioTag</span><span class="o">::</span><span class="nx">TYPE</span><span class="o">:</span> <span class="p">{</span>                  <span class="c1">// 当tag是音频数据
+</span><span class="c1"></span>      <span class="nx">AudioTag</span> <span class="nx">tag</span><span class="p">;</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">AudioTag</span><span class="o">::</span><span class="nx">TYPE</span><span class="p">;</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">audioTag</span> <span class="o">=</span> <span class="nx">tag</span><span class="p">.</span><span class="nx">decode</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">_size</span><span class="p">);</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">audioTag</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="nx">make_shared</span><span class="o">&lt;</span><span class="nx">Buffer</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nx">VideoTag</span><span class="o">::</span><span class="nx">TYPE</span><span class="o">:</span> <span class="p">{</span>                  <span class="c1">// 当tag是视频数据
+</span><span class="c1"></span>      <span class="nx">VideoTag</span> <span class="nx">tag</span><span class="p">;</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">VideoTag</span><span class="o">::</span><span class="nx">TYPE</span><span class="p">;</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">videoTag</span> <span class="o">=</span> <span class="nx">tag</span><span class="p">.</span><span class="nx">decode</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">_size</span><span class="p">);</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">videoTag</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="nx">make_shared</span><span class="o">&lt;</span><span class="nx">Buffer</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nx">DataTag</span><span class="o">::</span><span class="nx">TYPE</span><span class="o">:</span> <span class="p">{</span>                   <span class="c1">// 当tag是脚本数据
+</span><span class="c1"></span>      <span class="nx">DataTag</span> <span class="nx">tag</span><span class="p">;</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">DataTag</span><span class="o">::</span><span class="nx">TYPE</span><span class="p">;</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">dataTag</span> <span class="o">=</span> <span class="nx">tag</span><span class="p">.</span><span class="nx">decode</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">_size</span><span class="p">);</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">dataTag</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="nx">make_shared</span><span class="o">&lt;</span><span class="nx">Buffer</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">default</span><span class="o">:</span>
+      <span class="k">return</span> <span class="nx">TagValue</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nx">value</span><span class="p">.</span><span class="nx">timestamp</span> <span class="o">=</span> <span class="nx">_timestamp</span><span class="p">;</span>
+  <span class="nx">value</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="nx">make_shared</span><span class="o">&lt;</span><span class="nx">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">buffer</span><span class="o">-&gt;</span><span class="nx">slice</span><span class="p">(</span><span class="nx">_size</span><span class="p">));</span>
+  <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>先从<code>lib/codec/src/demuxer/audio_tag.cpp</code>看音频tag的解析:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">AudioTagValue</span> <span class="n">AudioTag</span><span class="o">::</span><span class="n">decode</span><span class="p">(</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">buffer</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">_soundFormat</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">((</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">240</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">);</span> <span class="c1">// 高4位是音频格式
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">_soundFormat</span> <span class="o">!=</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>                                       <span class="c1">// 这里只支持AAC解析
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nf">AudioTagValue</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">_soundRate</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">((</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span><span class="p">);</span>    <span class="c1">// 采样频率, 对于AAC这个值是3, 代表44-kHZ
+</span><span class="c1"></span>  <span class="n">_soundSize</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">((</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">);</span>     <span class="c1">// 每个采样的大小, 0是8bit, 1是16bit
+</span><span class="c1"></span>  <span class="n">_soundType</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">);</span>            <span class="c1">// 0-单声道, 1-立体声, 对于AAC总是1
+</span><span class="c1"></span>  <span class="n">_AACPacketType</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>                         <span class="c1">// 0-AAC sequence header, 1-AAC裸数据
+</span><span class="c1"></span>
+  <span class="n">AudioTagValue</span> <span class="n">value</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">soundFormat</span> <span class="o">=</span> <span class="n">_soundFormat</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">soundRate</span> <span class="o">=</span> <span class="n">_soundRate</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">soundSize</span> <span class="o">=</span> <span class="n">_soundSize</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">soundType</span> <span class="o">=</span> <span class="n">_soundType</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">AACPacketType</span> <span class="o">=</span> <span class="n">_AACPacketType</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="p">));</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span><span class="n">size</span><span class="p">));</span>
+  <span class="k">return</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后在<code>lib/codec/src/factor/codec_factor.cpp</code>看下音频数据是怎么回传的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="n">CodecFactor</span><span class="o">::</span><span class="n">_handleAudioTag</span><span class="p">(</span><span class="n">AudioTagValue</span> <span class="o">&amp;</span><span class="n">tag</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">timestamp</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">tag</span><span class="p">.</span><span class="n">AACPacketType</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>                   <span class="c1">// 如果是AAC sequence header
+</span><span class="c1"></span>    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">audioSpecificConfig</span> <span class="o">=</span> <span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">;</span> 
+    <span class="c1">// 5 bits, 2是AAC-LC，5是SBR，29是PS
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">audioObjectType</span> <span class="o">=</span> <span class="p">((</span><span class="o">*</span><span class="n">audioSpecificConfig</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xf8</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="c1">// 4 bits，用来表示采样率表中的索引号
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">samplingFrequencyIndex</span> <span class="o">=</span> <span class="p">(((</span><span class="o">*</span><span class="n">audioSpecificConfig</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x7</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="o">*</span><span class="n">audioSpecificConfig</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">7</span><span class="p">);</span>
+    <span class="c1">// 4bits, 音频声道数
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">channelConfig</span> <span class="o">=</span> <span class="p">((</span><span class="o">*</span><span class="n">audioSpecificConfig</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x0f</span><span class="p">;</span>
+    <span class="c1">// GASpecificConfig, 没用上 
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">frameLengthFlag</span> <span class="o">=</span> <span class="p">((</span><span class="o">*</span><span class="n">audioSpecificConfig</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x01</span><span class="p">;</span>
+    <span class="c1">// GASpecificConfig, 没用上 
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">dependsOnCoreCoder</span> <span class="o">=</span> <span class="p">((</span><span class="o">*</span><span class="n">audioSpecificConfig</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x01</span><span class="p">;</span>
+    <span class="c1">// GASpecificConfig, 没用上 
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">extensionFlag</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">audioSpecificConfig</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x01</span><span class="p">;</span>
+
+    <span class="c1">// 拼成ADTS(Audio Data Transport Stream))头
+</span><span class="c1"></span>    <span class="kt">uint8_t</span> <span class="n">adts</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mh">0xff</span><span class="p">,</span>
+            <span class="mh">0xf0</span> <span class="o">|</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span> <span class="p">(((</span><span class="n">audioObjectType</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">samplingFrequencyIndex</span> <span class="o">&amp;</span> <span class="mh">0x0f</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span>
+                       <span class="p">((</span><span class="n">channelConfig</span> <span class="o">&amp;</span> <span class="mh">0x04</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span><span class="p">)),</span>
+            <span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span> <span class="p">(((</span><span class="n">channelConfig</span> <span class="o">&amp;</span> <span class="mh">0x03</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">|</span>
+                       <span class="p">((</span><span class="mi">7</span> <span class="o">&amp;</span> <span class="mh">0x1800</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">11</span><span class="p">)),</span>
+            <span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span> <span class="p">((</span><span class="mi">7</span> <span class="o">&amp;</span> <span class="mh">0x7f8</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span> <span class="p">(((</span><span class="mi">7</span> <span class="o">&amp;</span> <span class="mh">0x7</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">|</span> <span class="mh">0x1f</span><span class="p">),</span>
+            <span class="mh">0xfc</span><span class="p">,</span>
+    <span class="p">};</span>
+    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">adtsHeader</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">adts</span><span class="p">,</span> <span class="mi">7</span><span class="p">);</span>  <span class="c1">// 存到成员变量里
+</span><span class="c1"></span>  <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">tag</span><span class="p">.</span><span class="n">AACPacketType</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>          <span class="c1">// 如果是AAC裸音频数据
+</span><span class="c1"></span>    <span class="c1">// 从成员变量拷贝一份ADTS的header, 然后把包长度写进去
+</span><span class="c1"></span>    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">adtsHeader</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">adtsHeader</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">adtsHeader</span> <span class="o">+</span> <span class="o">*</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">adtsHeader</span><span class="p">);</span>
+    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">adtsBody</span> <span class="o">=</span> <span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">adtsLen</span> <span class="o">=</span> <span class="n">adtsBody</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">7</span><span class="p">;</span>
+    <span class="n">adtsHeader</span><span class="o">-&gt;</span><span class="n">write_uint8</span><span class="p">(</span><span class="n">adtsHeader</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">adtsLen</span> <span class="o">&amp;</span> <span class="mh">0x1800</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">11</span><span class="p">),</span> <span class="mi">3</span><span class="p">);</span>
+    <span class="n">adtsHeader</span><span class="o">-&gt;</span><span class="n">write_uint8</span><span class="p">((</span><span class="n">adtsLen</span> <span class="o">&amp;</span> <span class="mh">0x7f8</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+    <span class="n">adtsHeader</span><span class="o">-&gt;</span><span class="n">write_uint8</span><span class="p">((((</span><span class="n">adtsLen</span> <span class="o">&amp;</span> <span class="mh">0x7</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">|</span> <span class="mh">0x1f</span><span class="p">),</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="n">adtsHeader</span><span class="o">-&gt;</span><span class="n">write_uint8</span><span class="p">(</span><span class="mh">0xfc</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>
+    <span class="n">adtsBody</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">adtsHeader</span> <span class="o">+</span> <span class="o">*</span><span class="n">adtsBody</span><span class="p">);</span>
+<span class="cp">#ifdef __EMSCRIPTEN__
+</span><span class="cp"></span>    <span class="c1">// 回传数据大小, 让上层准备buffer接收数据
+</span><span class="c1"></span>    <span class="n">EM_ASM</span><span class="p">({</span>
+      <span class="n">var</span> <span class="n">isWorker</span> <span class="o">=</span> <span class="n">typeof</span> <span class="n">importScripts</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">;</span>
+      <span class="n">var</span> <span class="n">bridge</span> <span class="o">=</span> <span class="p">(</span><span class="n">isWorker</span> <span class="o">?</span> <span class="nl">self</span> <span class="p">:</span> <span class="n">window</span><span class="p">)[</span><span class="n">UTF8ToString</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)];</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">bridge</span> <span class="o">&amp;&amp;</span> <span class="n">typeof</span> <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onAudioDataSize&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">){</span>
+        <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onAudioDataSize&#34;</span><span class="p">]({</span>
+          <span class="s">&#34;size&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">});</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">bridgeName</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">adtsBody</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">());</span>
+
+    <span class="c1">// 回传数据, 避免每次malloc分配空间
+</span><span class="c1"></span>    <span class="k">if</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">audioBuffer</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">){</span>
+      <span class="n">memcpy</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">audioBuffer</span><span class="p">,</span> <span class="n">adtsBody</span><span class="o">-&gt;</span><span class="n">get_buf_ptr</span><span class="p">(),</span> <span class="n">adtsBody</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">());</span>
+      <span class="n">EM_ASM</span><span class="p">({</span>
+        <span class="n">var</span> <span class="n">isWorker</span> <span class="o">=</span> <span class="n">typeof</span> <span class="n">importScripts</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">;</span>
+        <span class="n">var</span> <span class="n">bridge</span> <span class="o">=</span> <span class="p">(</span><span class="n">isWorker</span> <span class="o">?</span> <span class="nl">self</span> <span class="p">:</span> <span class="n">window</span><span class="p">)[</span><span class="n">UTF8ToString</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)];</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">bridge</span> <span class="o">&amp;&amp;</span> <span class="n">typeof</span> <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onAudioData&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">){</span>
+          <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onAudioData&#34;</span><span class="p">]({</span>
+            <span class="s">&#34;timestamp&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">1</span><span class="p">,</span>
+          <span class="p">});</span>
+        <span class="p">}</span>
+      <span class="p">},</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">bridgeName</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">timestamp</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="cp">#endif
+</span><span class="cp"></span>  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这个解析到回传的流程从音频这里看的比较明显. 我们来看看下个重点, 视频的处理: <code>lib/codec/src/demuxer/video_tag.cpp</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">VideoTagValue</span> <span class="n">VideoTag</span><span class="o">::</span><span class="n">decode</span><span class="p">(</span><span class="k">const</span> <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">buffer</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 4 bits, 帧类型(0-关键帧,1-帧间帧)
+</span><span class="c1"></span>  <span class="n">_frameType</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">((</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">240</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">);</span>
+  <span class="c1">// 4 bits, 编码ID(7-AVC,12-HEVC)
+</span><span class="c1"></span>  <span class="n">_codecId</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">15</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">_codecId</span> <span class="o">!=</span> <span class="mi">7</span> <span class="o">&amp;&amp;</span> <span class="n">_codecId</span> <span class="o">!=</span> <span class="mi">12</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nf">VideoTagValue</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 对于H264和H265来说, 这个字段是代表包类型(0-sequence header, 1-nalus, 2-end of sequence)
+</span><span class="c1"></span>  <span class="n">_AVCPacketType</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">_compositionTime</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">read_int32_be</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">);</span>
+
+  <span class="n">VideoTagValue</span> <span class="n">value</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">frameType</span> <span class="o">=</span> <span class="n">_frameType</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">codecId</span> <span class="o">=</span> <span class="n">_codecId</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">AVCPacketType</span> <span class="o">=</span> <span class="n">_AVCPacketType</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">compositionTime</span> <span class="o">=</span> <span class="n">_compositionTime</span><span class="p">;</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">size</span><span class="p">));</span>
+  <span class="n">value</span><span class="p">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span><span class="n">size</span><span class="p">));</span>
+  <span class="k">return</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>再来看<code>lib/codec/src/factor/codec_factor.cpp</code>, 看看视频的处理与帧怎么解码上报:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="n">CodecFactor</span><span class="o">::</span><span class="n">_handleVideoTag</span><span class="p">(</span><span class="n">VideoTagValue</span> <span class="o">&amp;</span><span class="n">tag</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">timestamp</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">uint32_t</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">uint32_t</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">uint32_t</span> <span class="n">stride0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">uint32_t</span> <span class="n">stride1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">picPtr</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+
+<span class="cp">#ifdef USE_OPEN_H265
+</span><span class="cp"></span>  <span class="c1">// nothing to do
+</span><span class="c1"></span><span class="cp">#elif defined(USE_OPEN_H264)
+</span><span class="cp"></span>  <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">pDst</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="n">SBufferInfo</span> <span class="n">sDstInfo</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="cp">#endif
+</span><span class="cp"></span>
+  <span class="c1">// ###################流的开始,需要指定SPS和PPS#####################
+</span><span class="c1"></span>  <span class="c1">// 内容是AVCDecoderConfigurationRecord, 也就是AVC sequence header
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">tag</span><span class="p">.</span><span class="n">AVCPacketType</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+    <span class="c1">// 版本号
+</span><span class="c1"></span>    <span class="kt">uint8_t</span> <span class="n">configurationVersion</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="c1">// SPS[1]
+</span><span class="c1"></span>    <span class="kt">uint8_t</span> <span class="n">AVCProfileIndication</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="c1">// SPS[2]
+</span><span class="c1"></span>    <span class="kt">uint8_t</span> <span class="n">profileCompatibility</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="c1">// SPS[3]
+</span><span class="c1"></span>    <span class="kt">uint8_t</span> <span class="n">AVCLevelIndication</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+    <span class="c1">// NALU的长度占几个字节, 这里的名字误导人, 其实应该叫lengthSize了, 因为加了1了
+</span><span class="c1"></span>    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">lengthSizeMinusOne</span> <span class="o">=</span> <span class="p">(</span><span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="c1">// SPS的个数
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">numOfSequenceParameterSets</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x1f</span><span class="p">;</span>
+    <span class="c1">// 16bit, SPS的长度, 这里只有一个SPS, 所以只读一个
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">sequenceParameterSetLength</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint16_be</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+    <span class="c1">// 读取SPS, 存到成员变量中, 其中_mask的值为 {0x00, 0x00, 0x00, 0x01}
+</span><span class="c1"></span>    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">sps</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">unit</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sequenceParameterSetLength</span><span class="p">));</span>
+    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">sps</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">_mask</span> <span class="o">+</span> <span class="o">*</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">sps</span><span class="p">);</span>
+
+    <span class="c1">// 解码器处理SPS
+</span><span class="c1"></span><span class="cp">#ifdef USE_OPEN_H265
+</span><span class="cp"></span>    <span class="c1">// nothing to do
+</span><span class="c1"></span><span class="cp">#elif defined(USE_OPEN_H264)
+</span><span class="cp"></span>    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">storage</span><span class="o">-&gt;</span><span class="n">DecodeFrame2</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">sps</span><span class="o">-&gt;</span><span class="n">get_buf_ptr</span><span class="p">(),</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">sps</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">pDst</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">sDstInfo</span><span class="p">);</span>
+<span class="cp">#else
+</span><span class="cp"></span>    <span class="n">h264bsdDecode</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">storage</span><span class="p">,</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">sps</span><span class="o">-&gt;</span><span class="n">get_buf_ptr</span><span class="p">(),</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">sps</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">picPtr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">width</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">height</span><span class="p">);</span>
+<span class="cp">#endif
+</span><span class="cp"></span>
+    <span class="c1">// PPS的个数
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">numOfPictureParameterSets</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="mi">8</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sequenceParameterSetLength</span><span class="p">);</span>
+    <span class="c1">// 16bit, 这里只有一个PPS, 只读一个
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">pictureParameterSetLength</span> <span class="o">=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint16_be</span><span class="p">(</span><span class="mi">8</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sequenceParameterSetLength</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="c1">// 读取PPS, 存到成员变量
+</span><span class="c1"></span>    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">pps</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">unit</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span>
+            <span class="mi">8</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sequenceParameterSetLength</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="mi">8</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sequenceParameterSetLength</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">pictureParameterSetLength</span>
+    <span class="p">));</span>
+    <span class="c1">// 其中_mask的值为 {0x00, 0x00, 0x00, 0x01}
+</span><span class="c1"></span>    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">pps</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">_mask</span> <span class="o">+</span> <span class="o">*</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">pps</span><span class="p">);</span>
+  
+  <span class="c1">//解码器处理PPS
+</span><span class="c1"></span><span class="cp">#ifdef USE_OPEN_H265
+</span><span class="cp"></span>    <span class="c1">// nothing to do
+</span><span class="c1"></span><span class="cp">#elif defined(USE_OPEN_H264)
+</span><span class="cp"></span>    <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">storage</span><span class="o">-&gt;</span><span class="n">DecodeFrame2</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">pps</span><span class="o">-&gt;</span><span class="n">get_buf_ptr</span><span class="p">(),</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">pps</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">pDst</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">sDstInfo</span><span class="p">);</span>
+<span class="cp">#else
+</span><span class="cp"></span>    <span class="n">h264bsdDecode</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">storage</span><span class="p">,</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">pps</span><span class="o">-&gt;</span><span class="n">get_buf_ptr</span><span class="p">(),</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">pps</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">picPtr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">width</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">height</span><span class="p">);</span>
+<span class="cp">#endif
+</span><span class="cp"></span>
+  <span class="c1">// ###################流的中间,nalus#####################
+</span><span class="c1"></span>  <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">tag</span><span class="p">.</span><span class="n">AVCPacketType</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">size</span> <span class="o">=</span> <span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">();</span>
+    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+    <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">nalus</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">naluLen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="c1">// 计算本次NALU长度
+</span><span class="c1"></span>      <span class="k">for</span> <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">lengthSizeMinusOne</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">naluLen</span> <span class="o">|=</span> <span class="n">unit</span><span class="o">-&gt;</span><span class="n">read_uint8</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">lengthSizeMinusOne</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span> <span class="n">nalu</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">unit</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">(</span>
+              <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">lengthSizeMinusOne</span><span class="p">,</span>
+              <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">lengthSizeMinusOne</span> <span class="o">+</span> <span class="n">naluLen</span>
+      <span class="p">));</span>
+      <span class="c1">// 将所有NALUS包写到一个buffer里面，其中_mask的值为 {0x00, 0x00, 0x00, 0x01}
+</span><span class="c1"></span>      <span class="n">nalus</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">nalus</span> <span class="o">+</span> <span class="o">*</span><span class="n">_mask</span> <span class="o">+</span> <span class="o">*</span><span class="n">nalu</span><span class="p">);</span>
+      <span class="n">unit</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">Buffer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">unit</span><span class="o">-&gt;</span><span class="n">slice</span><span class="p">((</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">lengthSizeMinusOne</span> <span class="o">+</span> <span class="n">naluLen</span><span class="p">));</span>
+      <span class="n">size</span> <span class="o">-=</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">lengthSizeMinusOne</span> <span class="o">+</span> <span class="n">naluLen</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 解码视频帧
+</span><span class="c1"></span><span class="cp">#ifdef USE_OPEN_H265
+</span><span class="cp"></span>    <span class="k">if</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#elif defined(USE_OPEN_H264)
+</span><span class="cp"></span>    <span class="kt">uint32_t</span> <span class="n">retCode</span> <span class="o">=</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">storage</span><span class="o">-&gt;</span><span class="n">DecodeFrame2</span><span class="p">(</span><span class="n">nalus</span><span class="o">-&gt;</span><span class="n">get_buf_ptr</span><span class="p">(),</span> <span class="n">nalus</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">pDst</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">sDstInfo</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">retCode</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">sDstInfo</span><span class="p">.</span><span class="n">iBufferStatus</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sDstInfo</span><span class="p">.</span><span class="n">UsrData</span><span class="p">.</span><span class="n">sSystemBuffer</span><span class="p">.</span><span class="n">iWidth</span><span class="p">;</span>
+      <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sDstInfo</span><span class="p">.</span><span class="n">UsrData</span><span class="p">.</span><span class="n">sSystemBuffer</span><span class="p">.</span><span class="n">iHeight</span><span class="p">;</span>
+      <span class="n">stride0</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sDstInfo</span><span class="p">.</span><span class="n">UsrData</span><span class="p">.</span><span class="n">sSystemBuffer</span><span class="p">.</span><span class="n">iStride</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+      <span class="n">stride1</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">sDstInfo</span><span class="p">.</span><span class="n">UsrData</span><span class="p">.</span><span class="n">sSystemBuffer</span><span class="p">.</span><span class="n">iStride</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="cp">#else
+</span><span class="cp"></span>      <span class="kt">uint32_t</span> <span class="n">retCode</span> <span class="o">=</span> <span class="n">h264bsdDecode</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">storage</span><span class="p">,</span> <span class="n">nalus</span><span class="o">-&gt;</span><span class="n">get_buf_ptr</span><span class="p">(),</span> <span class="n">nalus</span><span class="o">-&gt;</span><span class="n">get_length</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">picPtr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">width</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">height</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">retCode</span> <span class="o">==</span> <span class="n">H264BSD_PIC_RDY</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">stride0</span> <span class="o">=</span> <span class="n">width</span><span class="p">;</span>
+        <span class="n">stride1</span> <span class="o">=</span> <span class="n">height</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>
+      <span class="kt">uint32_t</span> <span class="n">totalSize</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+
+<span class="cp">#ifdef __EMSCRIPTEN__
+</span><span class="cp"></span>      <span class="c1">// 上报本次解码的视频帧的数据大小, 让上层准备好buffer
+</span><span class="c1"></span>      <span class="n">EM_ASM</span><span class="p">({</span>
+        <span class="n">var</span> <span class="n">isWorker</span> <span class="o">=</span> <span class="n">typeof</span> <span class="n">importScripts</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">;</span>
+        <span class="n">var</span> <span class="n">bridge</span> <span class="o">=</span> <span class="p">(</span><span class="n">isWorker</span> <span class="o">?</span> <span class="nl">self</span> <span class="p">:</span> <span class="n">window</span><span class="p">)[</span><span class="n">UTF8ToString</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)];</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">bridge</span> <span class="o">&amp;&amp;</span> <span class="n">typeof</span> <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onVideoDataSize&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">){</span>
+          <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onVideoDataSize&#34;</span><span class="p">]({</span>
+            <span class="s">&#34;size&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">1</span><span class="p">,</span>
+          <span class="p">});</span>
+        <span class="p">}</span>
+      <span class="p">},</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">bridgeName</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">totalSize</span><span class="p">);</span>
+
+      <span class="c1">// 避免每次分配, js里面一次性分配好buffer
+</span><span class="c1"></span>      <span class="k">if</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">videoBuffer</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">){</span>
+
+<span class="cp">#ifdef USE_OPEN_H265
+</span><span class="cp"></span>  <span class="c1">// nothing to do
+</span><span class="c1"></span><span class="cp">#elif defined(USE_OPEN_H264)
+</span><span class="cp"></span>      <span class="kt">uint32_t</span> <span class="n">startIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">pDst</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+      <span class="kt">uint32_t</span> <span class="n">iWidth</span> <span class="o">=</span> <span class="n">width</span><span class="p">;</span>
+      <span class="kt">uint32_t</span> <span class="n">iHeight</span> <span class="o">=</span> <span class="n">height</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">iHeight</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">memcpy</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">videoBuffer</span> <span class="o">+</span> <span class="n">startIndex</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">iWidth</span><span class="p">);</span>
+        <span class="n">ptr</span> <span class="o">+=</span> <span class="n">stride0</span><span class="p">;</span>
+        <span class="n">startIndex</span> <span class="o">+=</span> <span class="n">iWidth</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">ptr</span> <span class="o">=</span> <span class="n">pDst</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+      <span class="n">iWidth</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="n">iHeight</span> <span class="o">=</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">iHeight</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">memcpy</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">videoBuffer</span> <span class="o">+</span> <span class="n">startIndex</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">iWidth</span><span class="p">);</span>
+        <span class="n">ptr</span> <span class="o">+=</span> <span class="n">stride1</span><span class="p">;</span>
+        <span class="n">startIndex</span> <span class="o">+=</span> <span class="n">iWidth</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">ptr</span> <span class="o">=</span> <span class="n">pDst</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+      <span class="n">iWidth</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="n">iHeight</span> <span class="o">=</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">iHeight</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">memcpy</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">videoBuffer</span> <span class="o">+</span> <span class="n">startIndex</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">iWidth</span><span class="p">);</span>
+        <span class="n">ptr</span> <span class="o">+=</span> <span class="n">stride1</span><span class="p">;</span>
+        <span class="n">startIndex</span> <span class="o">+=</span> <span class="n">iWidth</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">stride0</span> <span class="o">=</span> <span class="n">width</span><span class="p">;</span>
+      <span class="n">stride1</span> <span class="o">=</span> <span class="n">height</span><span class="p">;</span>
+<span class="cp">#else
+</span><span class="cp"></span>      <span class="n">memcpy</span><span class="p">(</span><span class="n">_codec</span><span class="o">-&gt;</span><span class="n">videoBuffer</span><span class="p">,</span> <span class="n">picPtr</span><span class="p">,</span> <span class="n">totalSize</span><span class="p">);</span>
+<span class="cp">#endif
+</span><span class="cp"></span>
+        <span class="c1">// 解码完成, 上报视频帧, 时间戳为tag里面的时间戳
+</span><span class="c1"></span>        <span class="n">EM_ASM</span><span class="p">({</span>
+          <span class="n">var</span> <span class="n">isWorker</span> <span class="o">=</span> <span class="n">typeof</span> <span class="n">importScripts</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">;</span>
+          <span class="n">var</span> <span class="n">bridge</span> <span class="o">=</span> <span class="p">(</span><span class="n">isWorker</span> <span class="o">?</span> <span class="nl">self</span> <span class="p">:</span> <span class="n">window</span><span class="p">)[</span><span class="n">UTF8ToString</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)];</span>
+          <span class="k">if</span><span class="p">(</span><span class="n">bridge</span> <span class="o">&amp;&amp;</span> <span class="n">typeof</span> <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onVideoData&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">){</span>
+            <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onVideoData&#34;</span><span class="p">]({</span>
+              <span class="s">&#34;timestamp&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">1</span><span class="p">,</span>
+              <span class="s">&#34;width&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">2</span><span class="p">,</span>
+              <span class="s">&#34;height&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">3</span><span class="p">,</span>
+              <span class="s">&#34;stride0&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">4</span><span class="p">,</span>
+              <span class="s">&#34;stride1&#34;</span><span class="o">:</span> <span class="err">$</span><span class="mi">5</span>
+            <span class="p">});</span>
+          <span class="p">}</span>
+        <span class="p">},</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">bridgeName</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">stride0</span><span class="p">,</span> <span class="n">stride1</span><span class="p">);</span>
+      <span class="p">}</span>
+<span class="cp">#endif
+</span><span class="cp"></span>    <span class="p">}</span>
+  <span class="c1">// ###################流的最后,表明视频流结束#####################
+</span><span class="c1"></span>  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">tag</span><span class="p">.</span><span class="n">AVCPacketType</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+<span class="cp">#ifdef __EMSCRIPTEN__
+</span><span class="cp"></span>    <span class="n">EM_ASM</span><span class="p">({</span>
+      <span class="n">var</span> <span class="n">isWorker</span> <span class="o">=</span> <span class="n">typeof</span> <span class="n">importScripts</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">;</span>
+      <span class="n">var</span> <span class="n">bridge</span> <span class="o">=</span> <span class="p">(</span><span class="n">isWorker</span> <span class="o">?</span> <span class="nl">self</span> <span class="p">:</span> <span class="n">window</span><span class="p">)[</span><span class="n">UTF8ToString</span><span class="p">(</span><span class="err">$</span><span class="mi">0</span><span class="p">)];</span>
+      <span class="k">if</span><span class="p">(</span><span class="n">bridge</span> <span class="o">&amp;&amp;</span> <span class="n">typeof</span> <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onComplete&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;function&#34;</span><span class="p">){</span>
+        <span class="n">bridge</span><span class="p">[</span><span class="s">&#34;onComplete&#34;</span><span class="p">]();</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="n">_codec</span><span class="o">-&gt;</span><span class="n">bridgeName</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<span class="cp">#endif
+</span><span class="cp"></span>  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>由此, 我们看到, 解码视频帧是在解封装后, 在上报视频帧之前进行解码.</p>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">shandowc</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-07-15
+        <a href="/commit/7a1c4134564d27dbf2f6f6a9dbe84e21e2857e97" title="move to cloudinary and rebase">(7a1c413)</a>
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+          <a href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+          <a href="/tags/wasm/">wasm</a>
+          <a href="/tags/%E6%92%AD%E6%94%BE%E5%99%A8/">播放器</a>
+          <a href="/tags/wxinlineplayer/">WXInlinePlayer</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/html5rtspplayer_intro/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">html5_rtsp_player: 整体介绍</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/wxinlineplayer_audio/">
+            <span class="next-text nav-default">WXInlinePlayer: 音频播放</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2020-11-25 09:45:10 \u002b0800 CST',
+        title: 'WXInlinePlayer: FLV解封装',
+        clientID: '43ce905c941460b2c43d',
+        clientSecret: '7ec11b9eb1c5af5df4cf797f0d5221b4fd869aaa',
+        repo: 'shandowc.github.io',
+        owner: 'shandowc',
+        admin: ['shandowc'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zhxiaod3@gmail.com" class="iconfont icon-email" title="email"></a>
+  <a href="https://shandowc.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>shandowc</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>WXInlinePlayer: loader部分 - shandowc&#39;s blog</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="shandowc" /><meta name="description" content="WXInlinePlayer的loader部分。
+" /><meta name="keywords" content="shandowc" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.92.1 with theme even" />
+
+
+<link rel="canonical" href="https://shandowc.github.io/post/wxinlineplayer_loader/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="WXInlinePlayer: loader部分" />
+<meta property="og:description" content="WXInlinePlayer的loader部分。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://shandowc.github.io/post/wxinlineplayer_loader/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-11-13T14:23:52+08:00" />
+<meta property="article:modified_time" content="2020-07-15T12:21:51+08:00" />
+
+<meta itemprop="name" content="WXInlinePlayer: loader部分">
+<meta itemprop="description" content="WXInlinePlayer的loader部分。"><meta itemprop="datePublished" content="2020-11-13T14:23:52+08:00" />
+<meta itemprop="dateModified" content="2020-07-15T12:21:51+08:00" />
+<meta itemprop="wordCount" content="2154">
+<meta itemprop="keywords" content="源码阅读,前端,wasm,播放器,WXInlinePlayer," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="WXInlinePlayer: loader部分"/>
+<meta name="twitter:description" content="WXInlinePlayer的loader部分。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">shandowc&#39;s blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">shandowc&#39;s blog</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">WXInlinePlayer: loader部分</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-11-13 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#chunk加载器">chunk加载器</a></li>
+    <li><a href="#stream加载器">stream加载器</a></li>
+    <li><a href="#总结">总结</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p><a href="https://github.com/ErosZy/WXInlinePlayer">WXInlinePlayer</a>的loader部分。</p>
+<p>loader下载器主要暴露一个方法<code>Promise read(void)</code>，外部用法是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="k">this</span><span class="p">.</span><span class="nx">loader</span><span class="p">.</span><span class="nx">read</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">processor</span><span class="p">.</span><span class="nx">process</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>也就是说，我们自定义的下载器实现这个方法，也能代替默认的下载器。自带的下载器有两种，一种是chunk.js，一种是stream.js。</p>
+<h2 id="chunk加载器">chunk加载器</h2>
+<p>我们先来看看chunk.js的代码。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="nx">read</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里只是简单调用<code>this._request</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="nx">_request</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">isSuccess</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="kd">let</span> <span class="nx">promise</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_fetch</span><span class="p">();</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">MAX_REQ_RETRY</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">promise</span> <span class="o">=</span> <span class="nx">promise</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">buffer</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">isSuccess</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">isSuccess</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">downloadSize</span> <span class="o">+=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">done</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>         <span class="c1">// 获取到的数据不足chunk大小，表明文件下载完了
+</span><span class="c1"></span>            <span class="p">}</span>
+          <span class="p">}</span>
+
+          <span class="k">if</span> <span class="p">(</span><span class="nx">supportSharedBuffer</span><span class="p">)</span> <span class="p">{</span>    <span class="c1">// 支持sharedBuffer的浏览器就用，避免后续多次拷贝
+</span><span class="c1"></span>            <span class="kd">let</span> <span class="nx">sharedBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SharedArrayBuffer</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">byteLength</span><span class="p">);</span>
+            <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">sharedBuffer</span><span class="p">);</span>
+            <span class="nx">result</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
+            <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">result</span><span class="p">;</span>
+          <span class="p">}</span>
+
+          <span class="k">return</span> <span class="nx">buffer</span><span class="p">;</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">&gt;=</span> <span class="nx">MAX_REQ_RETRY</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">emitted</span><span class="p">)</span> <span class="p">{</span>              <span class="c1">// 只会抛出事件一次
+</span><span class="c1"></span>              <span class="k">this</span><span class="p">.</span><span class="nx">emitted</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;loadError&#39;</span><span class="p">,</span> <span class="nx">e</span><span class="p">);</span>      <span class="c1">// 失败次数超过限制，抛出事件
+</span><span class="c1"></span>            <span class="p">}</span>
+            <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_fetch</span><span class="p">();</span>
+          <span class="p">}</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">promise</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>this._request</code>会调用<code>this._fetch</code>去获取数据，并在失败的时候重试<code>MAX_REQ_RETRY</code>次。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="nx">_fetch</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">endIndex</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">startIndex</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">();</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">responseType</span> <span class="o">=</span> <span class="s1">&#39;arraybuffer&#39;</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span><span class="p">(</span>
+        <span class="s1">&#39;Range&#39;</span><span class="p">,</span>
+        <span class="sb">`bytes=</span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">startIndex</span><span class="si">}</span><span class="sb">-</span><span class="si">${</span><span class="nx">endIndex</span><span class="si">}</span><span class="sb">`</span>    <span class="c1">//通过range控制每次只下载chunk大小的数据
+</span><span class="c1"></span>      <span class="p">);</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">onerror</span> <span class="o">=</span> <span class="nx">e</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="nx">reject</span><span class="p">({</span>
+          <span class="nx">status</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+          <span class="nx">statusText</span><span class="o">:</span> <span class="s1">&#39;unknown error&#39;</span><span class="p">,</span>
+          <span class="nx">detail</span><span class="o">:</span> <span class="nx">e</span>
+        <span class="p">});</span>
+      <span class="p">};</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">onload</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">readyState</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span> <span class="o">&gt;=</span> <span class="mi">200</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span> <span class="o">&lt;=</span> <span class="mi">299</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">emitted</span><span class="p">)</span> <span class="p">{</span>            <span class="c1">// 只会抛出事件一次
+</span><span class="c1"></span>              <span class="k">this</span><span class="p">.</span><span class="nx">emitted</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;loadSuccess&#39;</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">startIndex</span> <span class="o">=</span> <span class="nx">endIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="nx">resolve</span><span class="p">(</span><span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">response</span><span class="p">));</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">reject</span><span class="p">({</span>
+              <span class="nx">status</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span><span class="p">,</span>
+              <span class="nx">statusText</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">statusText</span><span class="p">,</span>
+              <span class="nx">detail</span><span class="o">:</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span>
+                <span class="kc">null</span><span class="p">,</span>
+                <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">response</span><span class="p">)</span>
+              <span class="p">)</span>
+            <span class="p">});</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，chunk.js的方法是通过range方法每次下载chunk大小的数据，失败的时候会重试一定次数。</p>
+<h2 id="stream加载器">stream加载器</h2>
+<p>看stream.js之前，我们发现如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="nx">Loader</span><span class="p">({</span> <span class="nx">type</span> <span class="o">=</span> <span class="s1">&#39;chunk&#39;</span><span class="p">,</span> <span class="nx">opt</span> <span class="p">})</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">type</span> <span class="o">==</span> <span class="s1">&#39;chunk&#39;</span>
+    <span class="o">?</span> <span class="k">new</span> <span class="nx">ChunkLoader</span><span class="p">(</span><span class="nx">opt</span><span class="p">)</span>
+    <span class="o">:</span> <span class="k">new</span> <span class="p">(</span><span class="nx">Util</span><span class="p">.</span><span class="nx">workerify</span><span class="p">(</span><span class="nx">StreamLoader</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;cancel&#39;</span><span class="p">,</span> <span class="s1">&#39;hasData&#39;</span><span class="p">]))(</span><span class="nx">opt</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>从<code>Util.workerify</code>我们猜测，这是启动了一个web worker，下面我们求证一下这个想法，注意这里我们调整了一下代码顺序，方便理解：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="nx">getFuncBody</span><span class="p">(</span><span class="nx">funcStr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">funcStr</span>
+      <span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+      <span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/^function\s*\w*\s*\([\w\s,]*\)\s*{([\w\W]*?)}$/</span><span class="p">)[</span><span class="mi">1</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="nx">workerify</span><span class="p">(</span><span class="nx">func</span><span class="p">,</span> <span class="nx">methods</span> <span class="o">=</span> <span class="p">[])</span> <span class="p">{</span>
+    <span class="c1">// StreamLoader是将全部代码都放到一个function里面，getFuncBody则从这个函数的
+</span><span class="c1"></span>    <span class="c1">// 字符串中，提取函数内部的代码，从而拿到一个完整的js文件
+</span><span class="c1"></span>    <span class="kr">const</span> <span class="nx">funcStr</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getFuncBody</span><span class="p">(</span><span class="nx">func</span><span class="p">.</span><span class="nx">toString</span><span class="p">());</span>
+    <span class="kd">function</span> <span class="nx">__Worker__</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">EventEmitter</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span> <span class="o">=</span> <span class="p">[];</span>
+
+      <span class="kr">const</span> <span class="nx">blob</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Blob</span><span class="p">([</span><span class="nx">funcStr</span><span class="p">],</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;text/javascript&#39;</span> <span class="p">});</span> <span class="c1">// 用函数体代码创建一个Blob
+</span><span class="c1"></span>      <span class="k">this</span><span class="p">.</span><span class="nx">url</span> <span class="o">=</span> <span class="nx">URL</span><span class="p">.</span><span class="nx">createObjectURL</span><span class="p">(</span><span class="nx">blob</span><span class="p">);</span>   <span class="c1">// 给这个blob创建对象URL
+</span><span class="c1"></span>      <span class="k">this</span><span class="p">.</span><span class="nx">worker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Worker</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>     <span class="c1">// 创建web worker
+</span><span class="c1"></span>      <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="nx">message</span> <span class="p">=&gt;</span> <span class="p">{</span>    <span class="c1">// worker完成工作后，返回结果
+</span><span class="c1"></span>        <span class="kr">const</span> <span class="p">{</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">destroy</span><span class="p">,</span> <span class="nx">type</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">destroy</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span> <span class="o">=</span> <span class="p">[];</span>
+          <span class="nx">URL</span><span class="p">.</span><span class="nx">revokeObjectURL</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">terminate</span><span class="p">();</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">worker</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">type</span> <span class="o">==</span> <span class="s1">&#39;event&#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>    <span class="c1">// 对于Streamloader，是转发loadError和loadSuccess事件
+</span><span class="c1"></span>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">id</span> <span class="o">==</span> <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>         <span class="c1">// 在这里resolve之前调用method返回的promise
+</span><span class="c1"></span>              <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+              <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;constructor&#39;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="o">++</span><span class="p">,</span> <span class="nx">data</span> <span class="p">});</span>
+    <span class="p">}</span>
+
+    <span class="nx">inherits</span><span class="p">(</span><span class="nx">__Worker__</span><span class="p">,</span> <span class="nx">EventEmitter</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">methods</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">type</span> <span class="o">=</span> <span class="nx">methods</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+      <span class="nx">__Worker__</span><span class="p">.</span><span class="nx">prototype</span><span class="p">[</span><span class="nx">type</span><span class="p">]</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>      <span class="c1">// 让本对象实现methods方法
+</span><span class="c1"></span>        <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>        <span class="c1">// 返回的是Promise，因为是在worker中完成的，无法立刻返回结果
+</span><span class="c1"></span>          <span class="kr">const</span> <span class="nx">id</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">id</span><span class="o">++</span><span class="p">;</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">resolves</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span> <span class="p">});</span>
+          <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">data</span> <span class="p">});</span>  <span class="c1">// 通过postmessage让worker去执行具体动作
+</span><span class="c1"></span>          <span class="p">}</span>
+        <span class="p">});</span>
+      <span class="p">};</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">__Worker__</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下面我们看一下stream.js的原理。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="nx">StreamLoader</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">read</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// 目前的缓冲数据不满足chunk大小
+</span><span class="c1"></span>      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getChunk</span><span class="p">();</span>            <span class="c1">// 如果是文件到EOF了，那么也只能直接返回了
+</span><span class="c1"></span>      <span class="p">}</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getChunk</span><span class="p">();</span>         <span class="c1">// 如果文件没结束，那么请求后再返回chunk数据
+</span><span class="c1"></span>      <span class="p">});</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getChunk</span><span class="p">();</span>    <span class="c1">// 目前的缓冲数据大于chunk大小
+</span><span class="c1"></span>  <span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>看起来本地维护了一些数据，不用每次从网络请求。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">
+  <span class="kd">function</span> <span class="nx">slice</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">startIndex</span><span class="p">,</span> <span class="nx">endIndex</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">endIndex</span> <span class="o">||</span> <span class="nx">endIndex</span> <span class="o">-</span> <span class="nx">startIndex</span> <span class="o">&gt;</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">endIndex</span> <span class="o">=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nx">supportSharedBuffer</span><span class="p">){</span>          <span class="c1">// 支持sharedArray的时候用它减少后续拷贝
+</span><span class="c1"></span>      <span class="kd">let</span> <span class="nx">sharedBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">SharedArrayBuffer</span><span class="p">(</span><span class="nx">endIndex</span> <span class="o">-</span> <span class="nx">startIndex</span><span class="p">);</span>
+      <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">sharedBuffer</span><span class="p">);</span>
+      <span class="nx">result</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">subarray</span><span class="p">(</span><span class="nx">startIndex</span><span class="p">,</span> <span class="nx">endIndex</span><span class="p">));</span>
+      <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+      <span class="k">return</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">subarray</span><span class="p">(</span><span class="nx">startIndex</span><span class="p">,</span> <span class="nx">endIndex</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="nx">StreamLoader</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">_getChunk</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="nx">resolve</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">slice</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">slice</span><span class="p">(</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> 
+        <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span> <span class="o">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span>
+      <span class="p">);</span>
+      <span class="nx">resolve</span><span class="p">(</span><span class="nx">buffer</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>从<code>this.data</code>中拿出chunk大小的数据，如果数据不足，就全部拿出来。取数据出来的时候和chunk.js一样，如果支持sharedArrayBuffer，就传sharedArrayBuffer。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="kd">function</span> <span class="nx">concat</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">length</span> <span class="o">+</span> <span class="nx">j</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+    <span class="nx">buffer</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">i</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="nx">buffer</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">j</span><span class="p">),</span> <span class="nx">i</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">buffer</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">StreamLoader</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">_request</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">reader</span><span class="p">)</span> <span class="p">{</span>                   <span class="c1">// 看之前请求过没，请求过就能拿到reader
+</span><span class="c1"></span>      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">reader</span><span class="p">.</span><span class="nx">read</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="kd">let</span> <span class="p">{</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">done</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">result</span><span class="p">;</span>
+        <span class="nx">value</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="nx">value</span> <span class="o">?</span> <span class="nx">value</span> <span class="o">:</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">concat</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>   <span class="c1">// 将数据拼到this.data里面
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">done</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>                 <span class="c1">// 是否遇到EOF
+</span><span class="c1"></span>        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">chunkSize</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">();</span>           <span class="c1">// 读到数据，但是数据不足，递归调用自己
+</span><span class="c1"></span>        <span class="p">}</span>
+      <span class="p">});</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">fetch</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span> <span class="p">{</span>          <span class="c1">// 只在第一次调用fetch，拿到reader
+</span><span class="c1"></span>        <span class="nx">method</span><span class="o">:</span> <span class="s1">&#39;GET&#39;</span>
+      <span class="p">})</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">resp</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="kr">const</span> <span class="p">{</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">statusText</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">resp</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">status</span> <span class="o">&lt;</span> <span class="mi">200</span> <span class="o">||</span> <span class="nx">status</span> <span class="o">&gt;</span> <span class="mi">299</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">text</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">text</span> <span class="p">=&gt;</span> <span class="p">{</span>
+              <span class="nx">self</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+                <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span>
+                <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+                  <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;loadError&#39;</span><span class="p">,</span>            <span class="c1">// 状态码不是2xx就报错，是就返回加载成功
+</span><span class="c1"></span>                  <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">statusText</span><span class="p">,</span> <span class="nx">detail</span><span class="o">:</span> <span class="nx">text</span> <span class="p">}</span>
+                <span class="p">}</span>
+              <span class="p">});</span>
+            <span class="p">});</span>
+          <span class="p">}</span>
+
+          <span class="nx">self</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;loadSuccess&#39;</span> <span class="p">}</span> <span class="p">});</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">reader</span> <span class="o">=</span> <span class="nx">resp</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">getReader</span><span class="p">();</span>
+          <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_request</span><span class="p">();</span>
+        <span class="p">})</span>
+        <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="nx">self</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span>
+            <span class="nx">data</span><span class="o">:</span> <span class="p">{</span>
+              <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;loadError&#39;</span><span class="p">,</span>           <span class="c1">// fetch失败也报错
+</span><span class="c1"></span>              <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">statusText</span><span class="o">:</span> <span class="s1">&#39;unknown error&#39;</span><span class="p">,</span> <span class="nx">detail</span><span class="o">:</span> <span class="nx">e</span> <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">});</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="总结">总结</h2>
+<p>chunk.js是每次获取一块数据都是通过发起HTTP请求，通过Range字段控制下载的范围；而stream.js则是通过fetch的流API，只发起一次http请求，后续不断读取块数据。</p>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">shandowc</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-07-15
+        <a href="/commit/7a1c4134564d27dbf2f6f6a9dbe84e21e2857e97" title="move to cloudinary and rebase">(7a1c413)</a>
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+          <a href="/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+          <a href="/tags/wasm/">wasm</a>
+          <a href="/tags/%E6%92%AD%E6%94%BE%E5%99%A8/">播放器</a>
+          <a href="/tags/wxinlineplayer/">WXInlinePlayer</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/wxinlineplayer_glue/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">WXInlinePlayer: js和cpp沟通的桥</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/wxinlineplayer_intro/">
+            <span class="next-text nav-default">WXInlinePlayer: 整体代码介绍</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2020-11-13 14:23:52 \u002b0800 CST',
+        title: 'WXInlinePlayer: loader部分',
+        clientID: '43ce905c941460b2c43d',
+        clientSecret: '7ec11b9eb1c5af5df4cf797f0d5221b4fd869aaa',
+        repo: 'shandowc.github.io',
+        owner: 'shandowc',
+        admin: ['shandowc'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zhxiaod3@gmail.com" class="iconfont icon-email" title="email"></a>
+  <a href="https://shandowc.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2020 - 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>shandowc</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

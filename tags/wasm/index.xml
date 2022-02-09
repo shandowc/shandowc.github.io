@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>wasm on shandowc&#39;s blog</title>
+    <link>https://shandowc.github.io/tags/wasm/</link>
+    <description>Recent content in wasm on shandowc&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 25 Nov 2020 09:45:10 +0800</lastBuildDate><atom:link href="https://shandowc.github.io/tags/wasm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>WXInlinePlayer: FLV解封装</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_demux/</link>
+      <pubDate>Wed, 25 Nov 2020 09:45:10 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_demux/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的FLV解封装部分。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: 音频播放</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_audio/</link>
+      <pubDate>Sun, 15 Nov 2020 14:28:18 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_audio/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的音频播放部分。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: js和cpp沟通的桥</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_glue/</link>
+      <pubDate>Sat, 14 Nov 2020 14:34:13 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_glue/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的js和cpp代码怎么沟通的？&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: loader部分</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_loader/</link>
+      <pubDate>Fri, 13 Nov 2020 14:23:52 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_loader/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的loader部分。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>WXInlinePlayer: 整体代码介绍</title>
+      <link>https://shandowc.github.io/post/wxinlineplayer_intro/</link>
+      <pubDate>Thu, 12 Nov 2020 09:52:23 +0800</pubDate>
+      
+      <guid>https://shandowc.github.io/post/wxinlineplayer_intro/</guid>
+      <description>&lt;p&gt;我们来阅读一下&lt;a href=&#34;https://github.com/ErosZy/WXInlinePlayer&#34;&gt;WXInlinePlayer&lt;/a&gt;的源码，本来像一篇博文写完，但是发现这样不好看也不好写，一口吃不成一个大胖子。这篇先讲一下WXInlinePlayer的整体代码介绍。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
